@@ -1,0 +1,77 @@
+% main.tex — DESI-w0wa SVD paper
+% aastex631, two-column, with paperclaims annotations
+
+\documentclass[twocolumn]{aastex631}
+
+% --- Packages ---
+\usepackage[final]{paperclaims}  % use [draft] to show annotations
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage{booktabs}
+\usepackage{xspace}
+
+% --- Custom commands ---
+\newcommand{\omh}{\ensuremath{\Omega_m h^2}\xspace}
+\newcommand{\obh}{\ensuremath{\Omega_b h^2}\xspace}
+\newcommand{\och}{\ensuremath{\Omega_c h^2}\xspace}
+\newcommand{\thetastar}{\ensuremath{\theta_\star}\xspace}
+\newcommand{\czero}{\ensuremath{c_0}\xspace}
+\newcommand{\cone}{\ensuremath{c_1}\xspace}
+\newcommand{\azero}{\ensuremath{a_0}\xspace}
+\newcommand{\aone}{\ensuremath{a_1}\xspace}
+\newcommand{\LCDM}{\ensuremath{\Lambda\mathrm{CDM}}\xspace}
+\newcommand{\wowa}{\ensuremath{w_0\text{--}w_a}\xspace}
+\newcommand{\wzero}{\ensuremath{w_0}\xspace}
+\newcommand{\wa}{\ensuremath{w_a}\xspace}
+\newcommand{\Omk}{\ensuremath{\Omega_k}\xspace}
+\newcommand{\rs}{\ensuremath{r_s}\xspace}
+\newcommand{\DV}{\ensuremath{D_V}\xspace}
+\newcommand{\DM}{\ensuremath{D_M}\xspace}
+\newcommand{\DHubble}{\ensuremath{D_H}\xspace}
+\newcommand{\sigres}{\ensuremath{\sigma_{\mathrm{res}}}\xspace}
+\newcommand{\MB}{\ensuremath{M_B}\xspace}
+
+\begin{document}
+
+% --- Title and authors (AASTeX expects this after \begin{document}) ---
+\title{Universal distance modes from DESI BAO and Type Ia supernovae:\\
+       what do cosmological rulers actually measure?}
+
+\author{Matias Zaldarriaga}
+\affiliation{Institute for Advanced Study, Princeton, NJ 08540, USA}
+
+
+\begin{abstract}
+All low-redshift distance probes---DESI BAO and three Type~Ia supernova compilations---measure the same leading SVD mode \czero, which is a near-perfect proxy for \omh in the LCDM chains ($R^2 > 0.99$). BAO constrains this parameter, which we loosely call \omh more tightly than the CMB itself while SN datasets do not.
+In all extensions of LCDM considered here, the leading measurable direction still coincides with this one and it is the place where most of the tensions reside. In the \wowa extension, a second mode \cone becomes measurable which provides an independent test of the dynamical dark energy hypothesis, but the BAO \cone tension with \LCDM is only $+1.2\sigma$---the new dark energy direction shows mild tension. The DESI \wowa preference is dominated by \czero. BAO alone shows a $+2.2\sigma$ preference for lower \omh; all three SN datasets are mild or null ($-0.8$ to $-1.7\sigma$, preferring higher \omh). The only other beyond-\LCDM extension that opens a genuinely new measurable direction is spatial curvature, although only barely and only for the BAO: both \czero and \cone independently point to positive spatial curvature. But the \cone error is very large. All other extensions we considered only change the predicted distribution of \czero and provide no independent measurable quantity to constrain them or tell them apart, in some cases the tension is reduced. The absence of SN confirmation or the detection of a deviation in the \cone direction, leads creadance to the hypothesis that the tension originates in the CMB--BAO calibration rather than in new low-redshift physics.
+\end{abstract}
+
+\keywords{cosmology: observations --- dark energy --- methods: statistical --- large-scale structure of Universe}
+
+% --- Sections ---
+\input{sections/introduction}
+\input{sections/data_and_method}
+\input{sections/universal_c0}
+\input{sections/c0_tensions}
+\input{sections/w0wa_reinterpretation}
+\input{sections/curvature}
+\input{sections/extensions}
+\input{sections/conclusions}
+
+\clearpage
+% --- Acknowledgments ---
+\section*{Acknowledgments}
+This work was done entirely using Claude Code. MZ acknowledges support from the National Science Foundation NSF-BSF
+2207583 and NSF 2209991, the Nelson Center for Collaborative Research and the  Simons Foundation through the Black Holes and Strong Gravity program.
+
+% --- Appendices ---
+\appendix
+\input{sections/appendix_universality}
+
+% --- Bibliography ---
+\bibliographystyle{aasjournal}
+\bibliography{references}
+
+\end{document}

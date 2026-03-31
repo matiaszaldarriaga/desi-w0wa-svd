@@ -1,0 +1,192 @@
+# logic.yaml — Argument skeleton for the DESI-w0wa paper
+#
+# This file captures the logical structure of the paper: what each section
+# establishes, what it depends on, and how sections compose into the
+# overall argument. It serves both humans (for restructuring, explaining)
+# and AI agents (for reviewing, checking logical flow).
+#
+# Last synced: 2026-03-26
+#
+# Companion files:
+#   claims.yaml          — individual claims with evidence
+#   figures.yaml         — figure registry with source provenance
+#   scripts.yaml         — critical-path script registry
+#   dependency_graph.md  — claim dependency DAG (Mermaid)
+
+thesis: >
+  The DESI w0wa dark energy preference is an Omega_m h^2 calibration discrepancy
+  between CMB and BAO, repackaged as dark energy evolution by the w0wa
+  parameterization. No genuinely new dark energy information is present.
+
+sections:
+  - id: introduction
+    file: sections/introduction.tex
+    label: "§1"
+    establishes: >
+      Frames the question: what drives the DESI w0wa preference?
+      Previews the SVD approach and main results. States the central
+      claim (w0wa_is_c0) up front.
+    requires: []
+    claims: [w0wa_is_c0]
+    role: framing
+    figures: []
+
+  - id: data_and_method
+    file: sections/data_and_method.tex
+    label: "§2"
+    establishes: >
+      SVD of whitened distance residuals decomposes cosmological information
+      into orthogonal modes with known measurement error (sigma=1 by construction).
+      The tension formula combines measurement and model uncertainty.
+      Extension SVD projects out c0 and looks for new measurable directions.
+    requires: []
+    claims: []
+    role: foundation
+    figures: [fig:dv_ratios, fig:dmdh_ratios, fig:sn_datasets]
+    reader_should_understand:
+      - What whitening does and why it makes modes comparable
+      - The tension formula and what its denominator means
+      - The sigma_res measurability criterion for extensions
+
+  - id: universal_c0
+    file: sections/universal_c0.tex
+    label: "§3"
+    establishes: >
+      All four distance probes (BAO + 3 SN) measure the same leading mode c0,
+      which is a near-perfect proxy for Omega_m h^2. The distance measurement
+      space is effectively one-dimensional within LCDM.
+    requires: [data_and_method]
+    claims: [c0_universal, c0_is_omegamh2]
+    role: key_result
+    figures: [fig:c0_families]
+    reader_should_understand:
+      - Why universality is surprising (different observables, redshifts, systematics)
+      - What R^2 > 0.99 means (c0 IS Omega_m h^2, not just correlated)
+      - The connection to MEDI
+
+  - id: c0_tensions
+    file: sections/c0_tensions.tex
+    label: "§4"
+    establishes: >
+      BAO alone prefers lower Omega_m h^2 (+2.2 sigma). SN datasets are mild
+      or null. BAO constrains Omega_m h^2 more tightly than the CMB itself
+      (sigma_c0 > 1). The sign pattern suggests CMB-BAO systematics.
+    requires: [universal_c0]
+    claims: [c0_tensions_sign, bao_constrains_omh2]
+    role: key_result
+    figures: [fig:c0_gaussians, fig:omegamh2_money, fig:hz_omh2]
+    reader_should_understand:
+      - What sigma_c0 > 1 vs < 1 means for constraining power
+      - Why sign disagreement is a problem for cosmological interpretation
+      - The money plot as a direct Omega_m h^2 comparison
+
+  - id: w0wa_reinterpretation
+    file: sections/w0wa_reinterpretation.tex
+    label: "§5"
+    establishes: >
+      In the w0wa extension, a second mode c1 becomes measurable (the dark
+      energy direction). But BAO c1 tension is only +1.3 sigma: the dark energy
+      direction is consistent with LCDM. The w0wa preference is c0 repackaged.
+      At the BAO pivot z=0.46, w = -0.94 +/- 0.052 (consistent with -1).
+      When c_alpha are freed, higher modes (c2, c3) are measurable but c1 is not.
+    requires: [c0_tensions]
+    claims: [w0wa_is_c0, c0_dominant_w0wa, freed_calpha_pattern, three_mode_ladder]
+    role: central_argument
+    figures: [fig:w0wa_contours, fig:sn_all_datasets, fig:sn_c1_histogram, fig:bao_data_bands, fig:w0wa_chi2_investigation, fig:wp_histograms]
+    reader_should_understand:
+      - How c0 tension gets absorbed into w0/wa by the parameterization
+      - The contour plot showing c0 vs c1 directions
+      - The pivot analysis showing w = -1 at the dark energy pivot
+      - Data-centered bands and why c1 carries no information
+
+  - id: curvature
+    file: sections/curvature.tex
+    label: "§6"
+    establishes: >
+      Only spatial curvature (Omega_k, BAO only) opens a genuinely new measurable
+      direction. c0 and c1 independently point to Omega_k ~ +0.005 -- a
+      nontrivial consistency check. SN cannot measure curvature.
+    requires: [universal_c0]
+    claims: [only_omk_measurable, omk_coherence, sn_blind_curvature]
+    role: supporting_evidence
+    figures: [fig:omk_gaussians]
+    reader_should_understand:
+      - Why Omega_k coherence across c0 and c1 is nontrivial
+      - Why SN are blind to curvature
+
+  - id: extensions
+    file: sections/extensions.tex
+    label: "§7"
+    establishes: >
+      CMB-side extensions (A_lens, B_PMF, EDE) do not open new measurable
+      directions. A_lens reduces BAO c0 tension from 2.2 to 1.1 sigma by
+      broadening the CMB posterior, suggesting the tension has a lensing component.
+    requires: [c0_tensions]
+    claims: [alens_dilutes]
+    role: supporting_evidence
+    figures: [fig:ext_c0_dists]
+    reader_should_understand:
+      - Why most extensions fail the sigma_res criterion
+      - Why A_lens matters (tells us tension may be CMB-side)
+
+  - id: conclusions
+    file: sections/conclusions.tex
+    label: "§8"
+    establishes: >
+      All current low-redshift distance data are effectively one-dimensional
+      in cosmological information. That single dimension is Omega_m h^2.
+      The w0wa detection is c0. No extension is distinguishable by low-z data alone.
+    requires: [w0wa_reinterpretation, curvature, extensions]
+    claims: []
+    role: synthesis
+    figures: []
+
+  - id: appendix_universality
+    file: sections/appendix_universality.tex
+    label: "Appendix A"
+    establishes: >
+      Analytical derivation of why c0 is dominated by Omega_m h^2, using
+      log derivatives of single-redshift proxy observables combined with
+      the CMB parameter covariance. Predicts beta-vector to within 2%.
+    requires: [universal_c0]
+    claims: []
+    role: derivation
+    figures: [fig:app_derivatives, fig:app_beta_prediction]
+
+# How this paper connects to the broader research landscape
+knowledge_tree:
+  parent_questions:
+    - "Is the DESI w0wa dark energy detection real?"
+    - "What do BAO and SN distance measurements actually constrain about cosmology?"
+    - "Is there tension between the CMB and low-redshift probes?"
+
+  inputs:
+    - id: DESI_DR2_BAO
+      what_we_use: "DESI DR2 BAO measurements (13 data points, 0 < z < 2.3)"
+      relationship: "primary data"
+
+    - id: DESI_DR2_cosmo
+      what_we_use: "The w0wa preference claim (~3 sigma) that we reinterpret"
+      relationship: "target claim"
+
+    - id: ACT_DR6
+      what_we_use: "CMB baseline chains (LCDM and extensions)"
+      relationship: "reference model"
+
+    - id: SN_compilations
+      what_we_use: "Union3, Pantheon+, DES-Dovekie distance moduli"
+      relationship: "cross-probe comparison"
+
+  outputs:
+    - "c0 universality: all low-z distance probes measure the same 1D parameter (Omega_m h^2)"
+    - "The DESI w0wa preference is c0 (Omega_m h^2), not dark energy"
+    - "BAO constrains Omega_m h^2 more tightly than the CMB"
+    - "Curvature is the only extension opening a new BAO direction"
+    - "SN probes cannot measure curvature"
+
+  related_work:
+    - id: Weiner2026_MEDI
+      relationship: >
+        Complementary. MEDI provides the analytic explanation for why c0
+        suppresses dark energy sensitivity (the 1/14 factor). Our SVD adds
+        cross-probe universality, sign disagreements, and curvature coherence.

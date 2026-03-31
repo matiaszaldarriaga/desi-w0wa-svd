@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "svd-analysis"
+version = "1.0.0"
+description = "SVD analysis of DESI BAO and SN data — companion code for the paper"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [{name = "Matias Zaldarriaga"}]
+dependencies = [
+    "numpy>=1.21.0",
+    "scipy>=1.9.0",
+    "astropy>=5.0",
+    "getdist>=1.6.4",
+    "matplotlib>=3.5.0",
+    "marimo>=0.20.0",
+    "pyyaml>=6.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

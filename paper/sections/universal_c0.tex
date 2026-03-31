@@ -1,0 +1,85 @@
+% universal_c0.tex — §3
+
+\section{The Universal \czero Mode}
+\label{sec:universal_c0}
+
+\claim{c0_universal}{All four distance probes define the same leading SVD direction \czero (inner products $> 0.996$).}
+\claim{c0_is_omegamh2}{\czero is a near-perfect proxy for \omh ($R^2 > 0.99$).}
+
+The SVD of whitened chain predictions reveals that one mode dominates for every probe. Table~\ref{tab:sigma_c} summarizes the per-mode standard deviations $\sigma_{c_\alpha}$ (Eq.~\ref{eq:sigma_c}).
+
+\begin{deluxetable}{lcccc}
+\tablecaption{Leading Two SVD Mode Standard Deviations $\sigma_{c_\alpha}$ by Probe \label{tab:sigma_c}}
+\tablehead{
+\colhead{Mode} & \colhead{BAO} & \colhead{Union3} & \colhead{Pantheon+} & \colhead{DES-Dovekie}
+}
+\startdata
+$\sigma_{c_0}$ & 1.56 & 0.28 & 0.30 & 0.33 \\
+$\sigma_{c_1}$ & 0.063 & 0.0010 & 0.0011 & 0.0009 \\
+$\sigma_{c_0}/\sigma_{c_1}$ & 25 & 273 & 275 & 355 \\
+\enddata
+\end{deluxetable}
+
+Only \czero is measurable for any probe within \LCDM. BAO has $\sigma_{c_0} = 1.56 > 1$, meaning BAO constrains this leading direction more tightly than the CMB itself---new information flows from BAO to the CMB. The three SN datasets have $\sigma_{c_0} \approx 0.28$--$0.33 < 1$: for supernovae, the CMB already provides the tighter constraint on this parameter. No probe has a second measurable \LCDM mode ($\sigma_{c_1} \ll 1$ for all, including BAO where $\sigma_{c_1} = 0.06$).
+
+\subsection{Universality and Physical Interpretation}
+\label{sec:c0_interpretation}
+
+All four probes define almost the same \czero direction in parameter space. Table~\ref{tab:beta_vectors} shows the $\beta$-vector coefficients (Eq.~\ref{eq:beta_vectors}) for each probe:
+
+\begin{deluxetable}{lccc}
+\tablecaption{$\beta$-Vector Coefficients for \czero. In all cases the three-parameter fit achieves $R^2 > 0.999$. \label{tab:beta_vectors}}
+\tablehead{
+\colhead{Probe} & \colhead{$\beta_{\omh}$} & \colhead{$\beta_{\obh}$} & \colhead{$\beta_{\thetastar}$}
+}
+\startdata
+BAO (DESI) & $-0.90$ & $+0.13$ & $+0.17$ \\
+Union3 & $-0.90$ & $+0.18$ & $+0.12$ \\
+Pantheon+ & $-0.90$ & $+0.18$ & $+0.12$ \\
+DES-Dovekie & $-0.90$ & $+0.18$ & $+0.12$ \\
+\enddata
+\end{deluxetable}
+
+\evidence{c0_universal}{ev_inner_products}{Inner product matrix: minimum = 0.9969, mean = 0.9984 across all probe pairs.}
+
+The cross-probe inner product for \czero exceeds 0.996 for every pair. The three SN datasets define virtually identical \czero directions; BAO differs slightly due to its sensitivity to the sound horizon \rs, but the BAO--SN inner product still exceeds 0.996. This universality is not guaranteed a priori: BAO measures $D/\rs$ ratios while SN measures distance moduli $\mu(z)$, weighting redshifts differently. Yet all converge to the same parameter combination: predominantly \omh ($\beta = -0.90$), with small corrections from \obh and \thetastar.
+
+The dominance of \omh indicates that \czero is primarily an \omh proxy. Sequential multi-parameter fits quantify this:
+\begin{itemize}
+\item \omh alone: $R^2 = 0.95$
+\item $\omh + \obh$: $R^2 = 0.974$
+\item $\omh + \obh + \thetastar$: $R^2 = 0.99998$
+\end{itemize}
+The key result is the first line: \omh alone accounts for 95\% of the variance in \czero. The remaining 5\% is absorbed by small corrections from \obh and \thetastar, giving $R^2 = 0.99998$ (residual scatter $0.01$ in whitened units) for the full three-parameter fit. The $R^2 \approx 1$ for three parameters is expected---other parameters in \LCDM like the optical depth, the amplitude of fluctuations or the tilt of the power spectrum are not relevant for the low-redshift distances---but the near-unity $R^2$ for \omh \emph{alone} is the non-trivial content: \czero effectively \emph{is parametrized very well by} \omh. Thus for simplicity we will call \czero \omh even though it is a combination of \omh, \obh and \thetastar along the CMB degeneracy. 
+
+\evidence{c0_is_omegamh2}{ev_beta_regression}{Sequential fit: \omh alone $R^2=0.95$, $+\obh$ $R^2=0.974$, $+\thetastar$ $R^2=0.99998$. Beta regression on all four probes.}
+
+The sigma-normalized formula for BAO is:
+\begin{multline}
+\frac{\czero - \langle \czero \rangle}{\sigma_{\czero}} = -0.90\, \frac{\omh - \langle \omh \rangle}{\sigma_{\omh}} \\
++ 0.13\, \frac{\obh - \langle \obh \rangle}{\sigma_{\obh}} + 0.17\, \frac{\thetastar - \langle \thetastar \rangle}{\sigma_{\thetastar}}
+\label{eq:c0_formula}
+\end{multline}
+The SN $\beta$-vectors are nearly identical (Table~\ref{tab:beta_vectors}), so the sigma-normalized \czero is the same linear combination of cosmological parameters for every probe. The difference between probes lies only in the normalization: $\czero = 1$ corresponds to $1\sigma$ of measurement error for that probe, and since BAO and SN have very different measurement precisions, a unit of BAO \czero and a unit of SN \czero correspond to different shifts in \omh. Specifically, because the $\beta$-vectors are almost proportional, the \czero values for any two probes are related by:
+\begin{equation}
+c_0^\mathrm{SN} \approx \frac{\sigma_{c_0}^\mathrm{SN}}{\sigma_{c_0}^\mathrm{BAO}} \, c_0^\mathrm{BAO}
+\label{eq:c0_sn_bao}
+\end{equation}
+For DES-Dovekie, $\sigma_{c_0}^\mathrm{SN}/\sigma_{c_0}^\mathrm{BAO} = 0.33/1.56 \approx 0.21$: a given cosmological shift produces a $\sim 5\times$ smaller \czero value in SN whitened units than in BAO whitened units, reflecting the lower sensitivity of SN to \omh.
+
+The dominance of \omh follows quantitatively from the logarithmic derivatives of low-redshift distance observables combined with the CMB parameter covariance (Appendix~\ref{app:universality}). The per-sigma sensitivity of $D(z)/r_d$ to \omh is ${\sim}\,5\times$ larger than to \obh, because the log derivative $\partial \ln(D/r_d)/\partial \ln \omh \approx 0.8$ is ${\sim}\,3\times$ larger than $|\partial \ln(D/r_d)/\partial \ln \obh| \approx 0.3$, and \omh has a ${\sim}\,1.6\times$ larger fractional error than \obh ($0.8\%$ vs $0.5\%$). The large \thetastar derivative ($g_{\thetastar} \approx -4$) is suppressed by the tiny fractional error ($0.025\%$). The correlations between parameters in the CMB posterior further amplify the \omh dominance: when regressing on \omh alone, the correlated parts of \obh and \thetastar are partially captured, so that \omh alone predicts $R^2 = 0.95$. Appendix~\ref{app:universality} predicts the $\beta$-coefficients in Table~\ref{tab:beta_vectors} to within 2\% for \omh and ${\sim}\,30\%$ for \obh from single-redshift proxy observables. The results in the appendix are presented simply to gain some intuition about the results. 
+
+For SN, the $M_B$ marginalization removes the absolute distance scale, leaving the \emph{shape} of the distance--redshift relation. The relevant proxy is the distance ratio $D(0.3)/D(0.5)$, which has no $r_d$ dependence and no $M_B$ ambiguity. Its predicted $\beta/\sigma(c_0)$ is similar to the BAO proxy's (Appendix~\ref{app:universality}, Table~\ref{tab:beta_comparison}), explaining why the SN $\beta$-vectors in Table~\ref{tab:beta_vectors} nearly match the BAO values. The small difference ($\beta_{\obh} = +0.18$ for SN vs $+0.13$ for BAO) traces to the fact that BAO has an additional \obh sensitivity through $r_d$ that the SN distance ratio lacks.
+
+Our \czero correlates with the $\omega_m r_d^2$ combination identified by the MEDI framework \citep{Weiner2026_MEDI} at the $0.98$ level ($R^2 = 0.96$); the residual arises because the SVD mode also captures some sensitivity to \obh and \thetastar that $\omega_m r_d^2$, as a single combination, does not distinguish. See the introduction for a fuller discussion of the relation to previous work.
+
+Figure~\ref{fig:c0_families} shows what varying \czero looks like in observable space. The left panel displays BAO $D_V/\rs$ ratios (normalized to the Planck reference cosmology) for five values of \czero spanning $\pm 5$ in whitened units ($\approx \pm 3\sigma$ of the ACT chain variation); the right panel shows the corresponding SN distance modulus residuals (mean-subtracted to marginalize $M_B$). The \czero values in the two panels do not correspond to the same cosmological parameters: the normalization of \czero is set by each probe's measurement covariance (Eq.~\ref{eq:c0_sn_bao}), so $c_0 = 5$ represents a $\sim 5\times$ larger shift in \omh for BAO than for SN.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig_c0_families.pdf}
+\caption{\czero family of curves in observed space. \emph{Left:} BAO $D_V/\rs$ ratio (normalized to the Planck reference cosmology) for five values of \czero spanning $\pm 5$ whitened units ($\approx \pm 3\sigma$ of the ACT chain). Black points: DESI DR2. \emph{Right:} SN distance modulus residuals $\Delta\mu$ (mean-subtracted) for the same \czero range. Points: DES-Dovekie. The \czero normalization differs between panels (Eq.~\ref{eq:c0_sn_bao}): BAO \czero $= 5$ corresponds to a $\sim 5\times$ larger \omh shift than SN \czero $= 5$.}
+\label{fig:c0_families}
+\end{figure*}
+
+\dataref{ev_inner_products}{calculation/scripts/cross\_dataset\_analysis.py}

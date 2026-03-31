@@ -1,0 +1,73 @@
+% curvature.tex — §6
+
+\section{Spatial Curvature}
+\label{sec:curvature}
+
+\claim{only_omk_measurable}{Only spatial curvature (BAO) opens a genuinely new measurable direction beyond \czero ($\sigres = 5.3$).}
+\depends{only_omk_measurable}{c0_universal}
+Spatial curvature modifies distances at all redshifts and is the other beyond-\LCDM extension that opens a genuinely new measurable direction in the BAO data ($\sigres = 5.3$, far exceeding the $0.3$ threshold of Section~\ref{sec:extension_svd_method}). This makes curvature analogous to the \wowa analysis of Section~\ref{sec:w0wa_reinterpretation}: both \czero and \cone carry information about the new parameter.
+
+\subsection{Two Directions Sensitive to \Omk}
+
+From the ACT \Omk chain, the two-parameter regression (Eq.~\ref{eq:beta_vectors} extended to include \Omk) gives
+\begin{multline}
+\frac{\czero - \langle \czero \rangle}{\sigma_{\czero}} = -0.17\, \frac{\omh - \langle \omh \rangle}{\sigma_{\omh}} \\
++ 1.06\, \frac{\Omk - \langle \Omk \rangle}{\sigma_{\Omk}}
+\qquad (R^2 = 0.993)
+\label{eq:c0_omk_fit}
+\end{multline}
+Curvature dominates: $\beta_{\Omk} = +1.06$ versus $\beta_{\omh} = -0.17$. This is strikingly different from the \LCDM chain, where $\beta_{\omh} = -0.90$ and \Omk is absent---the geometric degeneracy in the \Omk extension transfers most of the \czero sensitivity from \omh to \Omk.
+
+However, these two parameters are not independent in the CMB posterior. The geometric degeneracy correlates \omh and \Omk ($r = 0.42$ in the chain): fitting the CMB with larger \Omk requires a compensating shift in \omh. Consequently, \czero along the CMB-allowed surface is effectively a function of \Omk alone. Regressing \czero directly on \Omk---which accounts for the correlated \omh variation---gives
+\begin{equation}
+\frac{\czero - \langle \czero \rangle}{\sigma_{\czero}} = +0.99\, \frac{\Omk - \langle \Omk \rangle}{\sigma_{\Omk}}
+\qquad (R^2 = 0.97)
+\label{eq:c0_omk_1d}
+\end{equation}
+After projecting out \czero, the residual direction is almost perfectly correlated with curvature:
+\begin{equation}
+\frac{c_\mathrm{1,res} - \langle c_\mathrm{1,res} \rangle}{\sigma_{c_\mathrm{1,res}}} = +0.99\, \frac{\Omk - \langle \Omk \rangle}{\sigma_{\Omk}}
+\qquad (r = 0.993)
+\label{eq:c1_omk_fit}
+\end{equation}
+
+Inverting the 1D regressions (Eqs.~\ref{eq:c0_omk_1d}--\ref{eq:c1_omk_fit}) using the BAO data projections $a_0$ and $a_\mathrm{1,res}$ gives two independent estimates of \Omk:
+
+\begin{deluxetable}{lccc}
+\tablecaption{Implied \Omk from BAO \czero and \cone \label{tab:omk_coherence}}
+\tablehead{
+\colhead{Direction} & \colhead{Implied \Omk} & \colhead{$\sigma(\Omk)$} & \colhead{Discrepancy}
+}
+\startdata
+\czero & $+0.0051$ & 0.0009 & --- \\
+\cone & $+0.0050$ & 0.0039 & $0.0\sigma$ \\
+\enddata
+\tablecomments{Measurement errors from $\sigma(a_\alpha) = 1$ in whitened space.}
+\end{deluxetable}
+
+Both directions independently point to the same $\Omk \approx +0.005$---a nontrivial internal consistency check. The BAO data's departure from \LCDM predictions is coherent across both measurable directions, as expected if the signal has a physical origin.
+
+Both point to a mildly open universe ($\Omk > 0$), opposite to the CMB-preferred closed direction ($\Omk \approx -0.017$ in the ACT chain), but consistent with the positive $\Omk$ preferred by DESI BAO + Planck joint fits \citep{ChenZaldarriaga2025}.
+
+\subsection{SN Blindness to Curvature}
+
+\claim{sn_blind_curvature}{SN probes cannot measure curvature ($\sigres < 0.1$ for all three datasets).}
+\depends{sn_blind_curvature}{only_omk_measurable}
+SN probes cannot measure curvature: the residual spread after projecting out \czero gives $\sigres < 0.1$ for all three SN datasets. This means the curvature coherence test cannot be cross-validated with supernovae---a fundamental limitation.
+
+\subsection{Effect on the \czero Tension}
+
+Adding curvature makes the BAO \czero tension \emph{worse} ($+2.7\sigma$ vs.\ $+2.2\sigma$ in \LCDM), because the CMB geometric degeneracy in the chains with curvature,  the data shifts along the degeneracy and the predicted \czero is far from the data (Figure~\ref{fig:omk_gaussians}). The \Omk chain's \czero distribution is much broader ($\sigma_{c_0} = 8.7$ vs.\ $1.6$), reflecting the wide range of values allowed by the geometric degeneracy.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig_omk_gaussians.pdf}
+\caption{BAO \czero distributions for \LCDM (red) and \Omk (blue) ACT chains, with DESI data (black dashed). The \Omk distribution is much broader because the CMB geometric degeneracy allows $H_0 \in [55, 68]$.}
+\label{fig:omk_gaussians}
+\end{figure}
+
+\claim{omk_coherence}{\czero and \cone independently point to the same \Omk $\approx +0.005$.}
+\depends{omk_coherence}{only_omk_measurable}
+\evidence{omk_coherence}{ev_omk_c0c1}{Both directions give $\Omk \approx +0.005$ from linear fits to the Ωk chain.}
+
+\dataref{ev_omk_c0c1}{calculation/scripts/compute\_paper\_numbers.py}

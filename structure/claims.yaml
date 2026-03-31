@@ -1,0 +1,160 @@
+# claims.yaml — Machine-readable claim registry for the DESI-w0wa paper
+# Maintained in sync with \claim{} annotations in paper/sections/*.tex
+# Last synced: 2026-03-26
+
+claims:
+  - id: c0_universal
+    statement: "All four distance probes define the same leading SVD direction c0 (inner products > 0.996)."
+    section: "§3 universal_c0"
+    file: universal_c0.tex
+    line: 6
+    evidence:
+      - id: ev_inner_products
+        description: "Inner product matrix: minimum = 0.9969, mean = 0.9984 across all probe pairs."
+        data_refs:
+          - calculation/scripts/cross_dataset_analysis.py
+    depends_on: []
+    status: established
+
+  - id: c0_is_omegamh2
+    statement: "c0 is a near-perfect proxy for Omega_m h^2 (R^2 > 0.99)."
+    section: "§3 universal_c0"
+    file: universal_c0.tex
+    line: 7
+    evidence:
+      - id: ev_beta_regression
+        description: "Sequential fit: Omega_m h^2 alone R^2=0.95, +Omega_b h^2 R^2=0.974, +theta_star R^2=0.99998."
+        data_refs:
+          - calculation/scripts/cross_dataset_analysis.py
+    depends_on: [c0_universal]
+    status: established
+
+  - id: c0_tensions_sign
+    statement: "BAO alone prefers lower Omega_m h^2 (+2.2 sigma). All three SN datasets are mild or null: Union3 -1.7 sigma, Pantheon+ -1.1 sigma, DES-Dovekie -0.8 sigma."
+    section: "§4 c0_tensions"
+    file: c0_tensions.tex
+    line: 6
+    evidence:
+      - id: ev_c0_table
+        description: "Four-probe tension table: BAO positive, all SN mild/negative."
+        data_refs:
+          - calculation/scripts/cross_dataset_analysis.py
+          - calculation/scripts/diagnose_union3.py
+    depends_on: [c0_universal]
+    status: established
+
+  - id: bao_constrains_omh2
+    statement: "BAO constrains Omega_m h^2 more tightly than the CMB (sigma_c0 = 1.56 > 1). SN datasets do not (sigma_c0 ~ 0.28-0.33 < 1)."
+    section: "§4 c0_tensions"
+    file: c0_tensions.tex
+    line: 8
+    evidence:
+      - id: ev_sigma_c0
+        description: "BAO sigma_c0 = 1.56 > 1; SN sigma_c0 = 0.28-0.33 < 1 (ACT chain, per-sample rdrag)."
+        data_refs:
+          - calculation/scripts/cross_dataset_analysis.py
+    depends_on: [c0_universal]
+    status: established
+
+  - id: w0wa_is_c0
+    statement: "The DESI w0wa preference is c0 tension repackaged: the dark energy direction is null."
+    section: "§1 introduction, §5 w0wa_reinterpretation"
+    file: introduction.tex (line 8), w0wa_reinterpretation.tex (line 7)
+    evidence:
+      - id: ev_w0wa_tensions
+        description: "BAO c1 tension +1.3 sigma vs LCDM; c0 tension +2.2 sigma (ACT chain, per-sample rdrag)."
+        data_refs:
+          - calculation/scripts/compute_paper_numbers.py
+    depends_on: [c0_tensions_sign]
+    status: established
+
+  - id: c0_dominant_w0wa
+    statement: "Even in the w0wa extension, c0 (the Omega_m h^2 direction) has the largest grid range for every probe."
+    section: "§5 w0wa_reinterpretation"
+    file: w0wa_reinterpretation.tex
+    line: 31
+    evidence:
+      - id: ev_grid_ranges
+        description: "Table 6: BAO c0 range=104 vs c1 range=34; SN c0 range 45-55 vs c1 range 8-9."
+        data_refs:
+          - calculation/scripts/compute_paper_numbers.py
+    depends_on: [c0_universal]
+    status: established
+
+  - id: freed_calpha_pattern
+    statement: "When c_alpha are freed from the w0wa constraint, BAO data measures c0, c2, c3 but not c1: the dark energy direction carries no information."
+    section: "§5 w0wa_reinterpretation"
+    file: w0wa_reinterpretation.tex
+    line: 118
+    evidence:
+      - id: ev_data_projections
+        description: "BAO a1 near zero vs a2, a3 significant; w0wa plane coloring shows chain enters through c2."
+        data_refs:
+          - calculation/scripts/section5_figures.py
+    depends_on: [w0wa_is_c0]
+    status: established
+
+  - id: three_mode_ladder
+    statement: "At the BAO c1 pivot (z = 0.46), w = -0.94 +/- 0.052 (+1.2 sigma): consistent with a cosmological constant."
+    section: "§5 w0wa_reinterpretation"
+    file: w0wa_reinterpretation.tex
+    line: 169
+    evidence:
+      - id: ev_pivot_analysis
+        description: "Pivot redshifts from linear fits to w0wa grid; w_p from Planck+DESI chain."
+        data_refs:
+          - calculation/scripts/compute_paper_numbers.py
+    depends_on: [w0wa_is_c0]
+    status: established
+
+  - id: only_omk_measurable
+    statement: "Only spatial curvature (BAO) opens a genuinely new measurable direction beyond c0 (sigma_res = 5.3)."
+    section: "§6 curvature"
+    file: curvature.tex
+    line: 6
+    evidence:
+      - id: ev_ext_table
+        description: "Extension residual table: only BAO Omega_k has sigma_res > 0.3."
+        data_refs:
+          - calculation/scripts/compute_paper_numbers.py
+    depends_on: [c0_universal]
+    status: established
+
+  - id: omk_coherence
+    statement: "c0 and c1 independently point to the same Omega_k ~ +0.005."
+    section: "§6 curvature"
+    file: curvature.tex
+    line: 69
+    evidence:
+      - id: ev_omk_c0c1
+        description: "Both directions give Omega_k ~ +0.005 from linear fits to the Omega_k chain."
+        data_refs:
+          - calculation/scripts/compute_paper_numbers.py
+    depends_on: [only_omk_measurable]
+    status: established
+
+  - id: sn_blind_curvature
+    statement: "SN probes cannot measure curvature (sigma_res < 0.02 for all three datasets)."
+    section: "§6 curvature"
+    file: curvature.tex
+    line: 54
+    evidence:
+      - id: ev_sn_omk
+        description: "SN sigma_res < 0.02 for Omega_k across all 3 datasets."
+        data_refs:
+          - calculation/scripts/compute_paper_numbers.py
+    depends_on: [only_omk_measurable]
+    status: established
+
+  - id: alens_dilutes
+    statement: "A_lens reduces BAO c0 tension from 2.2 sigma to 1.1 sigma by broadening the CMB posterior."
+    section: "§7 extensions"
+    file: extensions.tex
+    line: 11
+    evidence:
+      - id: ev_ext_c0_table
+        description: "Extension c0 table showing A_lens reduces tension by ~50%."
+        data_refs:
+          - calculation/scripts/compute_paper_numbers.py
+    depends_on: [c0_tensions_sign]
+    status: established

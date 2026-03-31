@@ -1,0 +1,103 @@
+% c0_tensions.tex — §4
+
+\section{\czero Tensions: \omh from All Probes}
+\label{sec:c0_tensions}
+
+\claim{c0_tensions_sign}{BAO alone prefers lower \omh ($+2.2\sigma$). All three SN datasets are mild or null: Union3 $-1.7\sigma$, Pantheon+ $-1.1\sigma$, DES-Dovekie $-0.8\sigma$ (all higher \omh or consistent with zero).}
+\depends{c0_tensions_sign}{c0_universal}
+\claim{bao_constrains_omh2}{BAO constrains \omh more tightly than the CMB ($\sigma_{c_0} = 1.56 > 1$). SN datasets do not ($\sigma_{c_0} \approx 0.28$--$0.33 < 1$).}
+\depends{bao_constrains_omh2}{c0_universal}
+
+Since all probes measure the same \czero direction (Section~\ref{sec:universal_c0}), we can compare their \czero measurements directly. The tension formula (Eq.~\ref{eq:tension}) gives four independent measurements of the same quantity.
+
+Table~\ref{tab:c0_tensions} summarizes the results. A few points of interpretation are needed before examining the numbers:
+
+\begin{itemize}
+\item \textbf{Sign convention:} Positive tension means the data projection $a_0$ exceeds the chain mean $\langle c_0 \rangle$. Since $\beta_{\omh} = -0.90$, a positive \czero shift corresponds to \emph{lower} \omh (larger distances).
+
+\item \textbf{What $\sigma_{c_0}$ means:} This is the standard deviation of \czero across the CMB chain posterior---it measures how much the CMB model prediction varies in the \czero direction, in units of measurement error. It is \emph{not} the measurement error, which is always 1 in whitened space by construction. The tension denominator $\sqrt{1 + \sigma_{c_0}^2}$ combines both.
+
+\item \textbf{$\sigma_{c_0}$ and constraining power:} BAO has $\sigma_{c_0} = 1.56 > 1$. This means BAO constrains \omh more tightly than the CMB: DESI data carries genuinely new information about \omh beyond what the CMB already provides. The three SN datasets have $\sigma_{c_0} \approx 0.28$--$0.33 < 1$: the CMB already provides a tighter constraint than these SN measurements, so their \czero tensions are measured against a prior that is already narrower than the data.
+\end{itemize}
+
+\begin{deluxetable*}{lcccc}
+\tablecaption{\czero Tension per Probe \label{tab:c0_tensions}}
+\tablecomments{Values in parentheses use the Planck 2018 \LCDM chain as the CMB reference instead of ACT DR6.}
+\tablehead{
+\colhead{Probe} & \colhead{$\langle c_0 \rangle$} & \colhead{$\sigma_{c_0}$} & \colhead{$a_0$} & \colhead{Tension}
+}
+\startdata
+BAO (DESI) & $+0.59$ ($-0.31$) & 1.56 (1.85) & $+4.69$ & $+2.2\sigma$ ($+2.4\sigma$) \\
+Union3 & $+0.13$ ($-0.06$) & 0.28 (0.34) & $-1.59$ & $-1.7\sigma$ ($-1.4\sigma$) \\
+Pantheon+ & $+0.14$ ($-0.06$) & 0.30 (0.36) & $-0.97$ & $-1.1\sigma$ ($-0.9\sigma$) \\
+DES-Dovekie & $+0.16$ ($-0.07$) & 0.33 (0.40) & $-0.74$ & $-0.8\sigma$ ($-0.6\sigma$) \\
+\enddata
+\end{deluxetable*}
+
+\evidence{c0_tensions_sign}{ev_c0_table}{Four-probe tension table: BAO positive, all SN mild/negative.}
+
+\subsection{Sign Disagreement}
+
+The most striking feature of Table~\ref{tab:c0_tensions} is that BAO alone prefers lower \omh (positive \czero tension at $+2.2\sigma$), while all three SN datasets prefer higher \omh or are consistent with zero. Union3 ($-1.7\sigma$) and Pantheon+ ($-1.1\sigma$) both prefer higher \omh; DES-Dovekie ($-0.8\sigma$) is consistent with null. If the signal were purely cosmological, all probes should agree on both sign and magnitude (when interpreted as a shift in cosmological parameters). The sign pattern---BAO positive, SN negative or null---suggests the tension may originate in the CMB--BAO system rather than in new low-$z$ physics.
+
+An important point ot remember when interpreting Figure~\ref{fig:c0_gaussians}: the \czero normalization differs between probes. A unit shift in BAO \czero and a unit shift in SN \czero both correspond to $1\sigma$ of their respective measurement errors, but these translate to different shifts in \omh (see Section~\ref{sec:money_plot}). The figure is designed to visualize \emph{tensions}, not to compare \omh values directly. 
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig_c0_gaussians.pdf}
+\caption{Per-probe \czero distributions. \emph{Shaded regions}: CMB chain predictions (model uncertainty in each probe's \czero). \emph{Dashed curves}: measurement likelihoods centered at the data \czero value ($\sigma = 1$ in whitened space by construction). The BAO chain distribution (shaded, wide) has $\sigma_{c_0} = 1.56$, wider than the measurement likelihood, reflecting BAO's ability to constrain \omh beyond the CMB prior. The three SN chain distributions (shaded, narrow, $\sigma_{c_0} \approx 0.28$--$0.33$) are much narrower than their measurement likelihoods, indicating SN data adds little constraining power on \czero.}
+\label{fig:c0_gaussians}
+\end{figure}
+
+\subsection{The \omh Money Plot}
+\label{sec:money_plot}
+
+Since \czero is a near-perfect proxy for \omh (Eq.~\ref{eq:c0_formula}), we can convert each probe's \czero measurement to an implied \omh value. This should be interpreted as the value of \omh that is implied by the data if one follows the CBM degeneracy direction. The conversion inverts the $\beta$-vector formula, setting \obh and \thetastar to their chain mean values:
+\begin{equation}
+\omh_\mathrm{probe} = \langle \omh \rangle_\mathrm{chain} + (a_0 - \langle c_0 \rangle) \times \frac{\sigma_{\omh}}{\beta_{\omh} \cdot \sigma_{c_0}}
+\label{eq:omh_conversion}
+\end{equation}
+where $\beta_{\omh}$ is the $\beta$-vector coefficient for \omh, and $\sigma_{\omh}$, $\sigma_{c_0}$ are the chain standard deviations. The measurement error on \omh from the $\sigma = 1$ whitened-space uncertainty is $\sigma_{\omh}^\mathrm{meas} = |\sigma_{\omh} / (\beta_{\omh} \cdot \sigma_{c_0})|$. An additional marginalization uncertainty arises from the CMB posterior widths of \obh and \thetastar; this adds $\sigma_\mathrm{marg} \approx 0.0003$ in quadrature, a modest correction ($\sim 7\%$ for BAO, negligible for SN).
+
+Figure~\ref{fig:omegamh2_money} shows the result. BAO provides the tightest constraint ($\sigma_\mathrm{total} = 0.00087$, combining measurement and marginalization), exceeding the CMB itself. The SN total errors ($\sigma_\mathrm{total} \approx 0.004$) are $\sim 5\times$ larger.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig_omegamh2_money.pdf}
+\caption{Effective \omh measurements from all four distance probes, derived from \czero via the $\beta$-vector inversion (Eq.~\ref{eq:omh_conversion}). Error bars show total uncertainty (measurement $+$ marginalization over \obh and \thetastar, added in quadrature). The gray band shows the ACT \LCDM posterior width. BAO provides a tighter constraint than the CMB.}
+\label{fig:omegamh2_money}
+\end{figure}
+
+\subsection{Physical Interpretation of the Mode Shape}
+
+The \czero mode measures \omh, and the physical effect of varying \omh at fixed \thetastar is a characteristic tilt of the Hubble rate $H(z)$ (Figure~\ref{fig:hz_omh2}). Increasing \omh raises $H(z)$ at high redshift (where $H \propto \sqrt{\omh}$ in the matter era), but the \thetastar constraint forces $H_0$ to \emph{decrease} to compensate (keeping $r_\star / D_A(z_\mathrm{rec})$ fixed). The result is a crossover near $z \sim 1$--$2$: higher \omh means faster expansion at $z > 2$ but slower at $z < 1$. This crossover falls squarely in the DESI BAO redshift range, explaining why BAO is sensitive to \omh.
+
+For distances, lower \omh (positive \czero) produces smaller $D_V/\rs$ ratios at all BAO redshifts (Figure~\ref{fig:c0_families}, left panel): the slower high-$z$ expansion reduces distances, while the higher $H_0$ reduces $\rs$-normalized quantities further. For SN, the same physics manifests as a tilt in $\mu(z)$: positive \czero shifts distance moduli downward (brighter supernovae) at low $z$ and upward at high $z$. The opposite signs of the BAO and SN tensions thus correspond to opposite distance residual patterns visible in the raw data (Figures~\ref{fig:dv_ratios} and~\ref{fig:sn_datasets}). Note that when making this plots we just varied \omh while keeping \obh and \thetastar fixed for simplicity. Varying \obh and \thetastar along the degeneracy does not change things qualitatively.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig_hz_omh2_variation.pdf}
+\caption{Hubble rate ratio $H(z)/H_\mathrm{ref}(z)$ for varying \omh at fixed \thetastar (flat \LCDM). Higher \omh (blue, dashed) raises $H$ at high $z$ but lowers $H_0$; the crossover near $z \sim 2$ falls within the DESI BAO range (shaded). The red curve shows the BAO-implied \omh from the \czero measurement ($\omh = 0.139$, $H_0 = 70.6$).}
+\label{fig:hz_omh2}
+\end{figure}
+
+\subsection{Goodness of Fit and Robustness}
+\label{sec:robustness}
+
+Beyond the \czero tension, a natural question is whether the remaining SVD modes are well-behaved. We compute a dimension-limited $\chi^2$:
+\begin{equation}
+\chi^2(K) = \sum_{\alpha=0}^{K-1} \frac{(a_\alpha - \langle c_\alpha \rangle)^2}{1 + \sigma_{c_\alpha}^2}
+\label{eq:chi2_K}
+\end{equation}
+For BAO, $\chi^2_{13} = 15.7$ ($p = 0.27$); excluding \czero, $\chi^2_{12} = 10.8$ ($p = 0.55$). The remaining 12 modes are well-behaved. All three SN datasets also show good fits: Union3 $\chi^2_{22} = 26.8$ ($p = 0.22$), Pantheon+ $\chi^2_{22} = 28.4$ ($p = 0.16$), DES-Dovekie $\chi^2_{19} = 20.0$ ($p = 0.39$). Excluding \czero leaves Union3 $\chi^2_{21} = 24.0$ ($p = 0.29$), Pantheon+ $\chi^2_{21} = 27.3$ ($p = 0.16$), DES-Dovekie $\chi^2_{18} = 19.3$ ($p = 0.37$). No dataset shows anomalous higher-mode structure. Of course this is a very crude test, as it could be that a significant discrepancy in one specific direction woudl get diluted in this statistic. Thus in the next sections we will perform a more detailed analysis of the higher-mode structure using specific physical models as guidance to identify promising directions based on our theoretical expectations. 
+
+We also verify that the tensions are robust to the redshift range: restricting all datasets to $z \leq 0.9$ changes tensions modestly (BAO: $+2.2\sigma \to +1.9\sigma$; Union3: $-1.7\sigma \to -2.0\sigma$; Pantheon+: $-1.1\sigma \to -1.8\sigma$; DES-Dovekie: $-0.8\sigma \to -0.6\sigma$). The high-redshift bins do not drive the tensions.
+
+\subsection{Central Finding Within \LCDM}
+\label{sec:central_finding_lcdm}
+
+Within \LCDM, there is a tension between DESI and the CMB which lives in the direction we are calling  the \omh direction---the worst-constrained CMB combination parameter for low-$z$ expansion history. No other direction is measurable: $\sigma_{c_1} = 0.06$ for BAO, $\approx 0.001$ for SN (Table~\ref{tab:sigma_c}). This fact is not particularly surprising. The \czero tension is real---BAO genuinely prefers a different \omh than the CMB---but mild. The absence of SN confirmation---all three SN datasets are mild or null---cautions against a simple cosmological interpretation, but of course the SN error bars are significantly larger.  
+In the next section, we extend the analysis to \wowa dark energy and ask whether this tension opens genuinely new directions, or whether the DESI \wowa preference is simply \czero tension repackaged.
+
+\dataref{ev_c0_table}{calculation/scripts/cross\_dataset\_analysis.py}
+\dataref{ev_c0_table}{calculation/scripts/diagnose\_union3.py}

@@ -1,0 +1,564 @@
+{
+  "_metadata": {
+    "generated_by": "compute_paper_numbers.py",
+    "act_chain_total_samples": 755302,
+    "n_drawn": 2000,
+    "seed": 42
+  },
+  "reference_cosmology": {
+    "H0": 67.36,
+    "ombh2": 0.02237,
+    "omch2": 0.12,
+    "omh2": 0.14237,
+    "rdrag": 147.09
+  },
+  "table1_datasets": {
+    "BAO": {
+      "n_obs": 13,
+      "z_min": 0.295,
+      "z_max": 2.33
+    },
+    "Union3": {
+      "n_obs": 22,
+      "z_min": 0.05,
+      "z_max": 2.26226
+    },
+    "Pantheon+": {
+      "n_bins": 22,
+      "z_min": 0.04047132578068321,
+      "z_max": 2.121411264765837
+    },
+    "DES-Dovekie": {
+      "n_bins": 19,
+      "z_min": 0.043924185453735394,
+      "z_max": 1.0948243361636967
+    }
+  },
+  "table3_sigma_c": {
+    "BAO": {
+      "sigma_c0": 1.56,
+      "sigma_c1": 0.0626,
+      "ratio": 25.0
+    },
+    "Union3": {
+      "sigma_c0": 0.28,
+      "sigma_c1": 0.001,
+      "ratio": 273.0
+    },
+    "Pantheon+": {
+      "sigma_c0": 0.3,
+      "sigma_c1": 0.0011,
+      "ratio": 275.0
+    },
+    "DES-Dovekie": {
+      "sigma_c0": 0.33,
+      "sigma_c1": 0.0009,
+      "ratio": 355.0
+    }
+  },
+  "table4_beta_vectors": {
+    "BAO": {
+      "beta_omh2": -0.9,
+      "beta_ombh2": 0.13,
+      "beta_theta": 0.17,
+      "R2": 1.0
+    },
+    "Union3": {
+      "beta_omh2": -0.9,
+      "beta_ombh2": 0.18,
+      "beta_theta": 0.12,
+      "R2": 1.0
+    },
+    "Pantheon+": {
+      "beta_omh2": -0.9,
+      "beta_ombh2": 0.18,
+      "beta_theta": 0.12,
+      "R2": 1.0
+    },
+    "DES-Dovekie": {
+      "beta_omh2": -0.9,
+      "beta_ombh2": 0.18,
+      "beta_theta": 0.12,
+      "R2": 1.0
+    }
+  },
+  "eq6_c0_formula": {
+    "beta_omh2": -0.9,
+    "beta_ombh2": 0.13,
+    "beta_theta": 0.17,
+    "R2": 1.0
+  },
+  "section3_inner_products": {
+    "min": 0.9969,
+    "mean": 0.9984,
+    "matrix": {
+      "BAO_Union3": 0.9969,
+      "BAO_Pantheon+": 0.9969,
+      "BAO_DES-Dovekie": 0.9969,
+      "Union3_Pantheon+": 1.0,
+      "Union3_DES-Dovekie": 1.0,
+      "Pantheon+_DES-Dovekie": 1.0
+    }
+  },
+  "section3_sequential_R2": {
+    "omh2_only": 0.95,
+    "plus_ombh2": 0.974,
+    "plus_theta": 0.99998
+  },
+  "medi_connection": {
+    "corr_c0_omrd2": 0.98,
+    "R2_c0_omrd2": 0.96,
+    "inner_product": 0.97
+  },
+  "table5_c0_tensions": {
+    "BAO_ACT": {
+      "c0_mean": 0.59,
+      "sigma_c0": 1.56,
+      "a0": 4.69,
+      "tension": 2.2
+    },
+    "BAO_Planck": {
+      "c0_mean": -0.31,
+      "sigma_c0": 1.85,
+      "a0": 4.69,
+      "tension": 2.4
+    },
+    "Union3_ACT": {
+      "c0_mean": 0.13,
+      "sigma_c0": 0.28,
+      "a0": -1.59,
+      "tension": -1.7
+    },
+    "Pantheon+_ACT": {
+      "c0_mean": 0.14,
+      "sigma_c0": 0.3,
+      "a0": -0.97,
+      "tension": -1.1
+    },
+    "DES-Dovekie_ACT": {
+      "c0_mean": 0.16,
+      "sigma_c0": 0.33,
+      "a0": -0.74,
+      "tension": -0.8
+    },
+    "Union3_Planck": {
+      "c0_mean": -0.06,
+      "sigma_c0": 0.34,
+      "a0": -1.59,
+      "tension": -1.4
+    },
+    "Pantheon+_Planck": {
+      "c0_mean": -0.06,
+      "sigma_c0": 0.36,
+      "a0": -0.97,
+      "tension": -0.9
+    },
+    "DES-Dovekie_Planck": {
+      "c0_mean": -0.07,
+      "sigma_c0": 0.4,
+      "a0": -0.74,
+      "tension": -0.6
+    }
+  },
+  "section42_money_plot": {
+    "BAO": {
+      "omh2_meas": 0.13855,
+      "sigma_meas": 0.000815,
+      "sigma_marg": 0.0003,
+      "sigma_total": 0.000868
+    },
+    "Union3": {
+      "omh2_meas": 0.14973,
+      "sigma_meas": 0.004567,
+      "sigma_marg": 0.000302,
+      "sigma_total": 0.004577
+    },
+    "Pantheon+": {
+      "omh2_meas": 0.14663,
+      "sigma_meas": 0.004291,
+      "sigma_marg": 0.000302,
+      "sigma_total": 0.004302
+    },
+    "DES-Dovekie": {
+      "omh2_meas": 0.1453,
+      "sigma_meas": 0.003818,
+      "sigma_marg": 0.000302,
+      "sigma_total": 0.00383
+    }
+  },
+  "section42_act_omh2": {
+    "mean": 0.141888,
+    "std": 0.001147
+  },
+  "section44_chi2": {
+    "BAO": {
+      "chi2_full": 15.7,
+      "p_full": 0.27,
+      "chi2_excl_c0": 10.8,
+      "p_excl_c0": 0.55,
+      "n_modes": 13
+    },
+    "Union3": {
+      "chi2_full": 26.8,
+      "p_full": 0.22,
+      "chi2_excl_c0": 24.0,
+      "p_excl_c0": 0.29,
+      "n_modes": 22
+    },
+    "Pantheon+": {
+      "chi2_full": 28.4,
+      "p_full": 0.16,
+      "chi2_excl_c0": 27.3,
+      "p_excl_c0": 0.16,
+      "n_modes": 22
+    },
+    "DES-Dovekie": {
+      "chi2_full": 20.0,
+      "p_full": 0.39,
+      "chi2_excl_c0": 19.3,
+      "p_excl_c0": 0.37,
+      "n_modes": 19
+    }
+  },
+  "section44_redshift_cuts": {
+    "BAO": {
+      "full": 2.2,
+      "z_le_09": 1.9
+    },
+    "Union3": {
+      "full": -1.7,
+      "z_le_09": -2.0
+    },
+    "Pantheon+": {
+      "full": -1.1,
+      "z_le_09": -1.8
+    },
+    "DES-Dovekie": {
+      "full": -0.8,
+      "z_le_09": -0.6
+    }
+  },
+  "table6_grid_ranges": {
+    "BAO": {
+      "c0": 104.0,
+      "c1": 33.9,
+      "c2": 6.7,
+      "c3": 3.8,
+      "c1_over_c0": 0.33
+    },
+    "Union3": {
+      "c0": 45.3,
+      "c1": 9.4,
+      "c2": 3.0,
+      "c3": "<1",
+      "c1_over_c0": 0.21
+    },
+    "Pantheon+": {
+      "c0": 50.0,
+      "c1": 9.4,
+      "c2": 2.7,
+      "c3": "<1",
+      "c1_over_c0": 0.19
+    },
+    "DES-Dovekie": {
+      "c0": 55.4,
+      "c1": 8.3,
+      "c2": 2.7,
+      "c3": "<1",
+      "c1_over_c0": 0.15
+    }
+  },
+  "table8_bao_calpha": {
+    "a_alpha": [
+      4.69,
+      1.24,
+      1.3,
+      1.32,
+      0.42,
+      -0.4
+    ],
+    "c_alpha_mean": [
+      4.48,
+      0.71,
+      2.0,
+      0.23,
+      0.0,
+      -0.03
+    ],
+    "c_alpha_std": [
+      0.92,
+      0.89,
+      0.68,
+      0.15,
+      0.03,
+      0.01
+    ]
+  },
+  "table10_chain_posterior": {
+    "Union3": {
+      "c1_mean": -3.01,
+      "c1_std": 1.08,
+      "a1": -1.49
+    },
+    "Pantheon+": {
+      "c1_mean": -3.41,
+      "c1_std": 1.21,
+      "a1": 0.23
+    },
+    "DES-Dovekie": {
+      "c1_mean": -3.05,
+      "c1_std": 1.08,
+      "a1": -0.75
+    },
+    "BAO": {
+      "c1_mean": 0.71,
+      "c1_std": 0.89,
+      "a1": 1.24
+    }
+  },
+  "table9_tensions": {
+    "BAO": {
+      "c0_tension": 2.2,
+      "a1": 1.24,
+      "c1_tension": 1.2
+    },
+    "Union3": {
+      "c0_tension": -1.7,
+      "a1": -1.49,
+      "c1_tension": -1.5
+    },
+    "Pantheon+": {
+      "c0_tension": -1.1,
+      "a1": 0.23,
+      "c1_tension": 0.2
+    },
+    "DES-Dovekie": {
+      "c0_tension": -0.8,
+      "a1": -0.75,
+      "c1_tension": -0.8
+    }
+  },
+  "eq10_c0": {
+    "w0_coeff": -26.9,
+    "wa_coeff": -12.7,
+    "const": -35.7,
+    "R2": 0.76
+  },
+  "eq11_c1": {
+    "w0_coeff": 16.0,
+    "wa_coeff": 4.6,
+    "const": 15.3,
+    "R2": 0.97
+  },
+  "section54_dchi2": {
+    "c0_to_c0": -22.0,
+    "c0_to_c1": -23.6,
+    "c0_to_c2": -25.3,
+    "c0_to_c3": -27.0
+  },
+  "section55_chain_bestfit": {
+    "w0": -0.43,
+    "wa": -1.69
+  },
+  "section53_sn_c1_proportionality": {
+    "Pantheon+_over_Union3": {
+      "slope": 1.13,
+      "corr": 0.9999
+    },
+    "DES-Dovekie_over_Union3": {
+      "slope": 1.01,
+      "corr": 0.9998
+    },
+    "DES-Dovekie_over_Pantheon+": {
+      "slope": 0.89,
+      "corr": 1.0
+    }
+  },
+  "sigma_c1_lcdm_w0wa": {
+    "BAO": 0.0464,
+    "Union3": 0.001
+  },
+  "pivot_fits": {
+    "c0_BAO": {
+      "a_coeff": -24.7,
+      "b_coeff": -10.5,
+      "z_pivot": 0.74,
+      "R2": 0.995,
+      "w_chain_mean": -1.155,
+      "w_chain_std": 0.067,
+      "w_data": -1.19,
+      "sigma_w_meas": 0.041,
+      "sigma_w_total": 0.075
+    },
+    "c1_BAO": {
+      "a_coeff": 19.1,
+      "b_coeff": 6.0,
+      "z_pivot": 0.46,
+      "R2": 1.0,
+      "w_chain_mean": -0.966,
+      "w_chain_std": 0.046,
+      "w_data": -0.935,
+      "sigma_w_meas": 0.052,
+      "sigma_w_total": 0.053
+    },
+    "c1_SN": {
+      "a_coeff": 4.6,
+      "b_coeff": -0.3,
+      "z_pivot": -0.06
+    }
+  },
+  "table12_ext_c0": {
+    "LCDM": {
+      "c0_mean": 0.59,
+      "sigma_c0": 1.56,
+      "tension": 2.2
+    },
+    "Alens": {
+      "c0_mean": 2.36,
+      "sigma_c0": 1.86,
+      "tension": 1.1
+    },
+    "B_PMF": {
+      "c0_mean": 2.04,
+      "sigma_c0": 2.37,
+      "tension": 1.0
+    },
+    "EDE_n2": {
+      "c0_mean": 0.85,
+      "sigma_c0": 1.88,
+      "tension": 1.8
+    },
+    "Omk": {
+      "c0_mean": -18.65,
+      "sigma_c0": 8.85,
+      "tension": 2.6
+    }
+  },
+  "table13_new_directions": {
+    "Alens_BAO": {
+      "sigma_res": 0.08,
+      "measurable": false,
+      "r": null,
+      "tension": null
+    },
+    "B_PMF_BAO": {
+      "sigma_res": 0.17,
+      "measurable": false,
+      "r": null,
+      "tension": null
+    },
+    "EDE_n2_BAO": {
+      "sigma_res": 0.24,
+      "measurable": false,
+      "r": null,
+      "tension": null
+    },
+    "Omk_Union3": {
+      "sigma_res": 0.077,
+      "measurable": false
+    },
+    "Omk_Pantheon+": {
+      "sigma_res": 0.083,
+      "measurable": false
+    },
+    "Omk_DES-Dovekie": {
+      "sigma_res": 0.072,
+      "measurable": false
+    }
+  },
+  "omk_fits": {
+    "c0_2d_beta": {
+      "beta_omh2": -0.17,
+      "beta_Omk": 1.06,
+      "R2": 0.993
+    },
+    "c0_1d_beta": {
+      "beta_Omk": 0.98,
+      "R2": 0.97
+    },
+    "c1_beta": {
+      "beta_Omk": 0.993,
+      "r": 0.993
+    },
+    "geometric_degeneracy_r": 0.42,
+    "sigma_res": 5.34
+  },
+  "omk_coherence": {
+    "c0": {
+      "implied_Omk": 0.0051,
+      "sigma_Omk": 0.0009
+    },
+    "c1": {
+      "implied_Omk": 0.005,
+      "sigma_Omk": 0.0039,
+      "discrepancy": 0.0
+    }
+  },
+  "appendix_universality": {
+    "log_derivs_BAO": {
+      "g_omh2": 0.7901,
+      "g_ombh2": -0.2613,
+      "g_theta": -4.0741
+    },
+    "log_derivs_SN": {
+      "g_omh2": 0.1035,
+      "g_ombh2": -0.0395,
+      "g_theta": -0.4095
+    },
+    "frac_errors": {
+      "omh2": 0.008081,
+      "ombh2": 0.00507,
+      "theta": 0.0002513
+    },
+    "correlation_matrix": [
+      [
+        1.0,
+        -0.2981824523333107,
+        -0.2101929066778587
+      ],
+      [
+        -0.2981824523333107,
+        1.0,
+        0.2575505037819182
+      ],
+      [
+        -0.2101929066778587,
+        0.2575505037819182,
+        0.9999999999999999
+      ]
+    ],
+    "f_BAO": [
+      0.006385,
+      -0.001325,
+      -0.001024
+    ],
+    "f_SN": [
+      0.000836,
+      -0.0002,
+      -0.000103
+    ],
+    "predicted_beta_over_sigma_BAO": [
+      -0.8849,
+      0.1836,
+      0.1419
+    ],
+    "predicted_beta_over_sigma_SN": [
+      -0.883,
+      0.2117,
+      0.1087
+    ],
+    "predicted_R2_BAO": [
+      0.9399,
+      0.9816,
+      1.0
+    ],
+    "predicted_R2_SN": [
+      0.9389,
+      0.9892,
+      1.0
+    ],
+    "dln_Omegam_dln_omh2_at_fixed_theta": 2.6211,
+    "f_ratio_wb_wm_BAO": -0.2075,
+    "f_ratio_th_wm_BAO": -0.1604
+  }
+}

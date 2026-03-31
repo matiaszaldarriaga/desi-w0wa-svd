@@ -1,0 +1,161 @@
+# figures.yaml — Figure registry for the DESI-w0wa paper
+# Maps each figure to its LaTeX label, PDF file, source, and claims.
+# Last synced: 2026-03-26
+#
+# 18 figures currently referenced by \includegraphics in the paper.
+
+figures:
+  # ── §2 Data and Method ──
+
+  - label: fig:dv_ratios
+    file: paper/figures/fig_dv_ratios.pdf
+    source: code/figures/make_all_figures.py
+    source_cell: fig_dv_ratios
+    section: "§2"
+    supports_claims: []
+    status: active
+
+  - label: fig:dmdh_ratios
+    file: paper/figures/fig_dmdh_ratios.pdf
+    source: code/figures/make_all_figures.py
+    source_cell: fig_dmdh_ratios
+    section: "§2"
+    supports_claims: []
+    status: active
+
+  - label: fig:sn_datasets
+    file: paper/figures/fig_sn_datasets.pdf
+    source: code/figures/make_all_figures.py
+    source_cell: fig_sn_datasets
+    section: "§2"
+    supports_claims: []
+    status: active
+
+  # ── §3 Universal c0 ──
+
+  - label: fig:c0_families
+    file: paper/figures/fig_c0_families.pdf
+    source: code/figures/make_all_figures.py
+    source_cell: fig_c0_families
+    section: "§3"
+    width: double_column
+    supports_claims: [c0_universal, c0_is_omegamh2]
+    status: active
+
+  # ── §4 c0 Tensions ──
+
+  - label: fig:c0_gaussians
+    file: paper/figures/fig_c0_gaussians.pdf
+    source: code/figures/make_all_figures.py
+    source_cell: fig_c0_gaussians
+    section: "§4"
+    supports_claims: [c0_tensions_sign]
+    status: active
+
+  - label: fig:omegamh2_money
+    file: paper/figures/fig_omegamh2_money.pdf
+    source: code/figures/make_all_figures.py
+    source_cell: fig_omegamh2_money
+    section: "§4"
+    supports_claims: [c0_tensions_sign, bao_constrains_omh2]
+    status: active
+
+  - label: fig:hz_omh2
+    file: paper/figures/fig_hz_omh2_variation.pdf
+    source: calculation/scripts/hz_omh2_variation.py
+    source_cell: null
+    section: "§4"
+    supports_claims: [c0_is_omegamh2]
+    status: active
+
+  # ── §5 w0wa Reinterpretation ──
+
+  - label: fig:w0wa_contours
+    file: paper/figures/fig_w0wa_contours.pdf
+    source: code/figures/make_all_figures.py
+    source_cell: fig_three_mode_contours
+    section: "§5"
+    supports_claims: [w0wa_is_c0, c0_dominant_w0wa]
+    status: active
+
+  - label: fig:sn_all_datasets
+    file: paper/figures/sec5_sn_all_datasets.pdf
+    source: calculation/scripts/section5_figures.py
+    source_cell: null
+    section: "§5"
+    supports_claims: [c0_tensions_sign]
+    status: active
+
+  - label: fig:sn_c1_histogram
+    file: paper/figures/sec5_sn_c1_histogram.pdf
+    source: calculation/scripts/section5_figures.py
+    source_cell: null
+    section: "§5"
+    supports_claims: [w0wa_is_c0]
+    status: active
+
+  - label: fig:bao_data_bands
+    file: paper/figures/sec5_bao_data_bands_dv.pdf, paper/figures/sec5_bao_data_bands_dmdh.pdf
+    source: calculation/scripts/section5_figures.py
+    source_cell: null
+    section: "§5"
+    width: double_column (side by side)
+    supports_claims: [freed_calpha_pattern]
+    status: active
+
+  - label: fig:w0wa_chi2_investigation
+    file: paper/figures/fig_w0wa_chi2_investigation.pdf
+    source: calculation/scripts/investigate_w0wa_chi2.py
+    source_cell: null
+    section: "§5"
+    width: double_column
+    supports_claims: [freed_calpha_pattern, w0wa_is_c0]
+    status: active
+
+  - label: fig:wp_histograms
+    file: paper/figures/fig_wp_histograms.pdf
+    source: calculation/scripts/compute_paper_numbers.py
+    source_cell: null
+    section: "§5"
+    supports_claims: [three_mode_ladder, w0wa_is_c0]
+    notes: "Now produced by compute_paper_numbers.py, not the marimo notebook"
+    status: active
+
+  # ── §6 Curvature ──
+
+  - label: fig:omk_gaussians
+    file: paper/figures/fig_omk_gaussians.pdf
+    source: code/figures/make_all_figures.py
+    source_cell: fig_omk_gaussians
+    section: "§6"
+    supports_claims: [omk_coherence, only_omk_measurable]
+    status: active
+
+  # ── §7 Extensions ──
+
+  - label: fig:ext_c0_dists
+    file: paper/figures/fig_ext_c0_dists.pdf
+    source: code/figures/make_all_figures.py
+    source_cell: fig_ext_c0_dists
+    section: "§7"
+    supports_claims: [alens_dilutes]
+    status: active
+
+  # ── Appendix A ──
+
+  - label: fig:app_derivatives
+    file: paper/figures/fig_app_derivatives.pdf
+    source: code/figures/make_all_figures.py
+    source_cell: fig_app_derivatives
+    section: "Appendix A"
+    width: double_column
+    supports_claims: [c0_is_omegamh2]
+    status: active
+
+  - label: fig:app_beta_prediction
+    file: paper/figures/fig_app_beta_prediction.pdf
+    source: code/figures/make_all_figures.py
+    source_cell: fig_app_beta_prediction
+    section: "Appendix A"
+    supports_claims: [c0_is_omegamh2]
+    status: active

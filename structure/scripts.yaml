@@ -1,0 +1,116 @@
+# scripts.yaml — Critical-path script registry for the DESI-w0wa paper
+# Only scripts directly referenced by \dataref{} or that produce paper figures.
+# Last synced: 2026-03-26
+
+scripts:
+  - id: compute_paper_numbers
+    path: calculation/scripts/compute_paper_numbers.py
+    description: "Compute all numerical values for the paper; output paper_numbers.json and fig_wp_histograms.pdf"
+    inputs:
+      - input/data/bao_data/desi_bao_dr2/
+      - input/data/sn_data/
+      - input/data/chains/p-actbase_lcdm_camb/
+      - input/data/chains/desi_dr2_official/base_w_wa/chain
+      - input/data/chains/act_extensions/
+    outputs:
+      - input/reference_data/paper_numbers.json
+      - paper/figures/fig_wp_histograms.pdf
+    referenced_by:
+      - "\\dataref{ev_pivot_analysis}"
+      - "\\dataref{ev_omk_c0c1}"
+      - "\\dataref{ev_ext_table}"
+
+  - id: cross_dataset_analysis
+    path: calculation/scripts/cross_dataset_analysis.py
+    description: "Cross-probe comparison: inner products, beta-vectors, c0 tensions, chi2"
+    inputs:
+      - input/data/bao_data/desi_bao_dr2/
+      - input/data/sn_data/
+      - input/data/chains/p-actbase_lcdm_camb/
+    outputs:
+      - output/claims/UNIVERSAL_DIRECTIONS.md
+    referenced_by:
+      - "\\dataref{ev_inner_products}"
+      - "\\dataref{ev_c0_table}"
+
+  - id: svd_lcdm_analysis
+    path: calculation/scripts/svd_lcdm_analysis.py
+    description: "BAO LCDM SVD analysis: singular values, c0/c1, beta-vectors, chi2"
+    inputs:
+      - input/data/bao_data/desi_bao_dr2/
+      - input/data/chains/p-actbase_lcdm_camb/
+    outputs:
+      - output/claims/SVD_LCDM_ANALYSIS.md
+    referenced_by:
+      - "\\dataref{method_svd}"
+
+  - id: section5_figures
+    path: calculation/scripts/section5_figures.py
+    description: "Section 5 figures: BAO data bands, SN datasets, c1 histograms, chi2 investigation"
+    inputs:
+      - input/data/bao_data/desi_bao_dr2/
+      - input/data/sn_data/
+      - input/data/chains/desi_dr2_official/base_w_wa/chain
+    outputs:
+      - paper/figures/sec5_bao_data_bands_dv.pdf
+      - paper/figures/sec5_bao_data_bands_dmdh.pdf
+      - paper/figures/sec5_sn_all_datasets.pdf
+      - paper/figures/sec5_sn_c1_histogram.pdf
+    referenced_by:
+      - "\\dataref{ev_data_projections}"
+
+  - id: diagnose_union3
+    path: calculation/scripts/diagnose_union3.py
+    description: "Union3 diagnostic: convention check + c0 overlay on SN residuals"
+    inputs:
+      - input/data/sn_data/
+      - input/data/chains/p-actbase_lcdm_camb/
+    outputs:
+      - output/claims/DIAGNOSE_UNION3.md
+    referenced_by:
+      - "\\dataref{ev_c0_table}"
+
+  - id: precompute_figure_data
+    path: calculation/scripts/precompute_figure_data.py
+    description: "Precompute all SVD results into figure_data.npz for the marimo notebook"
+    inputs:
+      - input/data/bao_data/desi_bao_dr2/
+      - input/data/sn_data/
+      - input/data/chains/p-actbase_lcdm_camb/
+    outputs:
+      - input/reference_data/figure_data.npz
+    notes: "Must run before make_all_figures.py"
+
+  - id: make_all_figures
+    path: code/figures/make_all_figures.py
+    description: "Marimo notebook producing 11 paper figure PDFs from precomputed data"
+    inputs:
+      - input/reference_data/figure_data.npz
+    outputs:
+      - paper/figures/fig_dv_ratios.pdf
+      - paper/figures/fig_dmdh_ratios.pdf
+      - paper/figures/fig_sn_datasets.pdf
+      - paper/figures/fig_c0_families.pdf
+      - paper/figures/fig_c0_gaussians.pdf
+      - paper/figures/fig_omegamh2_money.pdf
+      - paper/figures/fig_w0wa_contours.pdf
+      - paper/figures/fig_ext_c0_dists.pdf
+      - paper/figures/fig_omk_gaussians.pdf
+      - paper/figures/fig_app_derivatives.pdf
+      - paper/figures/fig_app_beta_prediction.pdf
+
+  - id: investigate_w0wa_chi2
+    path: calculation/scripts/investigate_w0wa_chi2.py
+    description: "w0wa chi2 investigation: truncated chi2 vs chain posterior"
+    inputs:
+      - input/data/bao_data/desi_bao_dr2/
+      - input/data/chains/desi_dr2_official/base_w_wa/chain
+    outputs:
+      - paper/figures/fig_w0wa_chi2_investigation.pdf
+
+  - id: hz_omh2_variation
+    path: calculation/scripts/hz_omh2_variation.py
+    description: "H(z)/H_ref(z) for varying Omega_m h^2 at fixed theta_star"
+    inputs: []
+    outputs:
+      - paper/figures/fig_hz_omh2_variation.pdf

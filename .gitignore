@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+
+# Data (downloaded by scripts/download_data.sh)
+data/chains/
+data/bao_data/
+data/sn_data/
+
+# LaTeX build artifacts
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.bbl
+paper/*.blg
+paper/*.fdb_latexmk
+paper/*.fls
+paper/*.synctex.gz
+paper/sections/*.aux
+
+# Generated figures (reproduced by pipeline)
+paper/figures/*.pdf
+
+# Dashboard assets (regenerated)
+structure/dashboard_assets/
+
+# OS noise
+.DS_Store

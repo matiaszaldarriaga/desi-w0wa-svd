@@ -1,0 +1,63 @@
+% paperclaims.sty — Lightweight claim/evidence annotations for scientific papers
+%
+% Usage:
+%   \usepackage[draft]{paperclaims}   % Show annotations as inline colored tags
+%   \usepackage[final]{paperclaims}   % Hide annotations (arXiv-ready)
+%   \usepackage{paperclaims}          % Default: draft mode
+%
+% Commands:
+%   \claim{id}{statement}
+%   \evidence{claim_id}{evidence_id}{description}
+%   \depends{claim_id}{other_claim_id}
+%   \dataref{evidence_id}{path_or_doi}
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{paperclaims}[2026/03/08 Paper claims and evidence annotations]
+
+\RequirePackage{xcolor}
+
+% --- Options ---
+\newif\if@pc@draft
+\@pc@drafttrue  % default is draft
+
+\DeclareOption{draft}{\@pc@drafttrue}
+\DeclareOption{final}{\@pc@draftfalse}
+\ProcessOptions\relax
+
+% --- Colors ---
+\definecolor{claimcolor}{RGB}{0,100,180}      % blue
+\definecolor{evidencecolor}{RGB}{0,140,60}     % green
+\definecolor{dependscolor}{RGB}{180,100,0}     % orange
+\definecolor{datarefcolor}{RGB}{140,0,140}     % purple
+
+% --- Draft mode: inline colored tags ---
+% Uses \detokenize for IDs containing underscores
+\if@pc@draft
+
+  \newcommand{\claim}[2]{%
+    {\footnotesize\color{claimcolor}[\textbf{C:}\,\detokenize{#1}]}%
+  }
+
+  \newcommand{\evidence}[3]{%
+    {\footnotesize\color{evidencecolor}[\textbf{E:}\,\detokenize{#2}]}%
+  }
+
+  \newcommand{\depends}[2]{%
+    {\footnotesize\color{dependscolor}[\textbf{D:}\,\detokenize{#1}]}%
+  }
+
+  \newcommand{\dataref}[2]{%
+    {\footnotesize\color{datarefcolor}[\textbf{R:}\,\detokenize{#1}]}%
+  }
+
+% --- Final mode: invisible ---
+\else
+
+  \newcommand{\claim}[2]{}
+  \newcommand{\evidence}[3]{}
+  \newcommand{\depends}[2]{}
+  \newcommand{\dataref}[2]{}
+
+\fi
+
+\endinput

@@ -1,0 +1,58 @@
+% extensions.tex — §7 (CMB-side extensions)
+
+\section{CMB-Side Extensions}
+\label{sec:extensions}
+
+Extensions that modify recombination physics---primordial magnetic fields ($B_\mathrm{PMF}$), and Early Dark Energy (EDE)--- or phenomenological extensions that modify the amplitud of lensing such as $A_\mathrm{lens}$ can shift the CMB posterior on \omh without introducing new low-redshift distance signatures. Unlike spatial curvature (Section~\ref{sec:curvature}), these extensions do not open measurable new directions beyond \czero.
+
+\subsection{How Extensions Shift \czero}
+\label{sec:ext_c0_shifts}
+
+\claim{alens_dilutes}{$A_\mathrm{lens}$ reduces BAO \czero tension from $2.2\sigma$ to $1.1\sigma$ by broadening the CMB posterior.}
+
+Each beyond-\LCDM extension chain (ACT DR6 CMB-only) produces a different \czero distribution:
+
+\begin{deluxetable}{lcccc}
+\tablecaption{BAO \czero Under CMB Extensions \label{tab:ext_c0}}
+\tablehead{
+\colhead{Extension} & \colhead{$\langle c_0 \rangle$} & \colhead{$\sigma_{c_0}$} & \colhead{BAO tension} & \colhead{Notes}
+}
+\startdata
+\LCDM & $+0.59$ & 1.56 & $+2.2\sigma$ & Baseline \\
+$A_\mathrm{lens}$ & $+2.36$ & 1.86 & $+1.1\sigma$ & Broadened \\
+$B_\mathrm{PMF}$ & $+2.04$ & 2.37 & $+1.0\sigma$ & Broadened \\
+EDE $n=2$ & $+0.85$ & 1.88 & $+1.8\sigma$ & $\approx$ \LCDM \\
+\enddata
+\end{deluxetable}
+
+\evidence{alens_dilutes}{ev_ext_c0_table}{Extension \czero table showing $A_\mathrm{lens}$ reduces tension by ${\sim}50\%$.}
+
+$A_\mathrm{lens}$ and $B_\mathrm{PMF}$ reduce tension by broadening the CMB posterior on distance-relevant parameters---not by fitting the data better. $A_\mathrm{lens}$ reveals that the CMB \omh constraint has a lensing component: it is not purely from peak heights. Freeing $A_\mathrm{lens}$ both broadens \emph{and} shifts the \omh posterior, reflecting the known $\tau$--$A_\mathrm{lens}$ degeneracy ($A\, e^{-2\tau}$ controls the lensing amplitude).
+
+EDE $n=2$ barely changes \czero---indistinguishable from \LCDM in \czero space.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig_ext_c0_dists.pdf}
+\caption{BAO \czero distributions under beyond-\LCDM extension chains. Blue: ACT \LCDM. Colored: extension chains projected onto the same \czero direction. Red dashed: DESI data ($\sigma = 1$). The right panel shows Union3 for comparison.}
+\label{fig:ext_c0_dists}
+\end{figure}
+
+\subsection{No New Measurable Directions}
+\label{sec:ext_new_directions}
+
+\begin{deluxetable}{lcccc}
+\tablecaption{Residual Directions for CMB Extensions \label{tab:new_directions}}
+\tablehead{
+\colhead{Extension} & \colhead{Probe} & \colhead{\sigres} & \colhead{Meas.?} & \colhead{Tension}
+}
+\startdata
+EDE $n=2$ & BAO & 0.24 & $\times$ & --- \\
+$A_\mathrm{lens}$ & BAO & 0.08 & $\times$ & --- \\
+$B_\mathrm{PMF}$ & BAO & 0.17 & $\times$ & --- \\
+\enddata
+\end{deluxetable}
+
+None of these extensions opens a measurable new direction ($\sigres < 0.3$ for all, below the threshold of Section~\ref{sec:extension_svd_method}). The SVD residual cannot distinguish EDE from $A_\mathrm{lens}$ from $B_\mathrm{PMF}$ because none moves the low-$z$ prediction measurably beyond \czero. 
+
+\dataref{ev_ext_table}{calculation/scripts/compute\_paper\_numbers.py}
