@@ -335,10 +335,8 @@ for name, svd, zeff_key in [("Union3", svd_u3, "z_eff_u3"),
     z_eff = _d[zeff_key]
     W_sn = svd["W"]
     V_sn = svd["V"]
-    # Interpolate Planck chain delta_mu to this SN's z_eff
     plk_dmu_interp = np.array([np.interp(z_eff, z_fine_sn, plk_dmu_fine[i])
                                 for i in range(len(plk_dmu_fine))])
-    # Whiten and project
     plk_sn_w = plk_dmu_interp @ W_sn.T
     plk_c_sn = plk_sn_w @ V_sn
     table5[f"{name}_Planck"] = c0_tension(plk_c_sn[:, 0], svd["a"][0])
@@ -687,8 +685,7 @@ print(f"  Table 8: a_α = {table8['a_alpha']}")
 
 # Table 9: c₁ tensions vs ΛCDM
 # c₁ tension ≈ a₁ (since ΛCDM σ_{c₁} ≈ 0 in the w0wa V₁ direction)
-# Compute ΛCDM chain spread in the w0wa V₁ direction
-_c1_lcdm_bao = (c_bao @ V_bao.T) @ V_w0wa[:, 1]  # project ΛCDM chain onto w0wa V₁
+_c1_lcdm_bao = (c_bao @ V_bao.T) @ V_w0wa[:, 1]
 _sigma_c1_lcdm_bao = float(np.std(_c1_lcdm_bao))
 table9 = {}
 table9["BAO"] = {
@@ -1076,8 +1073,12 @@ for ext_name, chain in ext_chains.items():
     c0_proj = ext_chain_w @ V_bao[:, 0]
     residual = ext_chain_w - np.outer(c0_proj, V_bao[:, 0])
     _, S_res, Vh_res = np.linalg.svd(residual, full_matrices=False)
-    sigma_res = float(S_res[0] / np.sqrt(N_ext))
     c_res = residual @ Vh_res[0]
+    # Measurability metric = std of the chain's projection onto the new residual direction, in
+    # units of measurement error (data are whitened). NOT S_res[0]/sqrt(N): that is the RMS
+    # = sqrt(mean^2 + std^2), inflated by the chain's mean OFFSET (the tension) rather than the
+    # model SPREAD (the measurability). Standardized on std 2026-06-08 (see CODE_AUDIT).
+    sigma_res = float(c_res.std())
 
     # Correlation with extension parameter (if Omk)
     if ext_name == "Omk" and hasattr(load_samples(str(CHAIN_DIR / ext_chain_paths[ext_name]))["samples"].getParams(), "omegak"):
@@ -1128,8 +1129,9 @@ for name, ds in sn_datasets.items():
 
     c0_proj = sn_ext_w @ V0_sn
     residual = sn_ext_w - np.outer(c0_proj, V0_sn)
-    _, S_res, _ = np.linalg.svd(residual, full_matrices=False)
-    sigma_res = float(S_res[0] / np.sqrt(N_ext))
+    _, S_res, Vh_res = np.linalg.svd(residual, full_matrices=False)
+    c_res = residual @ Vh_res[0]
+    sigma_res = float(c_res.std())  # std metric, consistent with the BAO path
 
     table13[f"Omk_{name}"] = {
         "sigma_res": round(sigma_res, 3),
@@ -1247,7 +1249,7 @@ if "Omk" in ext_chains:
         "c0_1d_beta": {"beta_Omk": round(beta_1d, 2), "R2": round(R2_1d, 2)},
         "c1_beta": {"beta_Omk": round(beta_omk_c1, 3), "r": round(r_c1_omk, 3)},
         "geometric_degeneracy_r": round(r_omh2_omk, 2),
-        "sigma_res": round(float(S_res_omk[0] / np.sqrt(N_omk)), 2),
+        "sigma_res": round(float(c1_res_omk.std()), 2),  # std metric (was S_res[0]/sqrt(N) = RMS)
     }
     numbers["omk_coherence"] = {
         "c0": {"implied_Omk": round(omk_from_c0, 4), "sigma_Omk": round(sigma_omk_c0, 4)},
@@ -1492,6 +1494,14 @@ def convert(obj):
     if isinstance(obj, list):
         return [convert(v) for v in obj]
     return obj
+
+# Literature-only values (NOT computed here): optical-depth / CMB-lensing numbers from
+# Sailer+25 (arXiv:2504.16932) and companions, maintained in a dedicated committed file so this
+# script remains the SOLE writer of paper_numbers.json. Provenance: output/CMB_LENSING_OMEGAM_CONSTRAINT.md.
+_sailer_path = PROJECT_ROOT / "data" / "sailer_2025_literature.json"
+if _sailer_path.exists():
+    numbers["sailer_2025"] = json.loads(_sailer_path.read_text())
+    print(f"  Merged literature block sailer_2025 from {_sailer_path.name}")
 
 numbers = convert(numbers)
 OUT_PATH.parent.mkdir(parents=True, exist_ok=True)

@@ -109,7 +109,7 @@ def load_official_bao_data(
     Parameters
     ----------
     data_dir : Path, optional
-        Path to data directory. If None, uses default input/data path.
+        Path to data directory. If None, uses default data/ path.
     dataset : str
         Dataset identifier. Options: "ALL_GCcomb" (default, combined),
         or individual tracers like "BGS_BRIGHT-21.35_GCcomb".
@@ -137,8 +137,8 @@ def load_official_bao_data(
     if not mean_file.exists():
         raise FileNotFoundError(
             f"BAO data file not found: {mean_file}\n"
-            f"Clone the data repository:\n"
-            f"  git clone https://github.com/CobayaSampler/bao_data input/data/bao_data"
+            f"Download the data:\n"
+            f"  bash scripts/download_data.sh"
         )
 
     # Parse mean file
@@ -246,8 +246,8 @@ def load_pantheon_plus(data_dir: Path | None = None) -> SNData:
     if not data_file.exists():
         raise FileNotFoundError(
             f"Pantheon+ data not found: {data_file}\n"
-            f"Clone the data repository:\n"
-            f"  git clone https://github.com/CobayaSampler/sn_data input/data/sn_data"
+            f"Download the data:\n"
+            f"  bash scripts/download_data.sh"
         )
 
     # Parse data file (space-separated with header)
@@ -312,8 +312,8 @@ def load_des_y5(data_dir: Path | None = None) -> SNData:
     if not data_file.exists():
         raise FileNotFoundError(
             f"DES Y5 data not found: {data_file}\n"
-            f"Clone the data repository:\n"
-            f"  git clone https://github.com/CobayaSampler/sn_data input/data/sn_data"
+            f"Download the data:\n"
+            f"  bash scripts/download_data.sh"
         )
 
     # Parse CSV — load ALL entries first (covariance is N_total × N_total)
@@ -386,8 +386,8 @@ def load_des_dovekie(data_dir: Path | None = None) -> SNData:
     if not data_file.exists():
         raise FileNotFoundError(
             f"DES-Dovekie data not found: {data_file}\n"
-            f"Clone the data repository:\n"
-            f"  git clone https://github.com/CobayaSampler/sn_data input/data/sn_data"
+            f"Download the data:\n"
+            f"  bash scripts/download_data.sh"
         )
 
     # Parse CSV
@@ -471,8 +471,8 @@ def load_union3(data_dir: Path | None = None) -> SNData:
     if not data_file.exists():
         raise FileNotFoundError(
             f"Union3 data not found: {data_file}\n"
-            f"Clone the data repository:\n"
-            f"  git clone https://github.com/CobayaSampler/sn_data input/data/sn_data"
+            f"Download the data:\n"
+            f"  bash scripts/download_data.sh"
         )
 
     # Parse data file

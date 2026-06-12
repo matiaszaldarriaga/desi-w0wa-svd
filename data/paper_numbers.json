@@ -124,10 +124,10 @@
       "tension": 2.2
     },
     "BAO_Planck": {
-      "c0_mean": -0.22,
-      "sigma_c0": 1.36,
+      "c0_mean": -0.31,
+      "sigma_c0": 1.85,
       "a0": 4.69,
-      "tension": 2.9
+      "tension": 2.4
     },
     "Union3_ACT": {
       "c0_mean": 0.13,

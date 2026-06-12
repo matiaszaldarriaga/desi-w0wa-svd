@@ -4,10 +4,11 @@ __pycache__/
 *.egg-info/
 .eggs/
 
-# Data (downloaded by scripts/download_data.sh)
-data/chains/
-data/bao_data/
-data/sn_data/
+# Data (downloaded by scripts/download_data.sh; also matches local dev symlinks)
+data/chains
+data/bao_data
+data/sn_data
+data/desi_dr2_official
 
 # LaTeX build artifacts
 paper/*.aux
@@ -28,6 +29,3 @@ structure/dashboard_assets/
 
 # OS noise
 .DS_Store
-
-# Compiled paper (build artifact; run latexmk to produce)
-paper/main.pdf

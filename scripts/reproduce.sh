@@ -8,7 +8,7 @@
 # This script runs the three-step pipeline:
 #   1. precompute_figure_data.py  — chains -> data/figure_data.npz  (~2 min)
 #   2. compute_paper_numbers.py   — chains -> data/paper_numbers.json (~2 min)
-#   3. make_all_figures.py        — precomputed data -> 18 PDFs     (< 5 sec)
+#   3. make_all_figures.py        — precomputed data -> 17 PDFs     (< 5 sec)
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
