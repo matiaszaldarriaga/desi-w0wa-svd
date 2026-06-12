@@ -648,7 +648,7 @@ print(f"  plk_dmu_fine: shape={plk_dmu_fine.shape}, "
 # ════════════════════════════════════════════════════════════════
 # This produces all sec5_* keys consumed by the figure notebook.
 # Mirrors computation in calculation/scripts/section5_figures.py,
-# calculate/scripts/investigate_w0wa_chi2.py, and
+# calculation/scripts/investigate_w0wa_chi2.py, and
 # calculation/scripts/compute_paper_numbers.py (pivot analysis).
 from scipy.ndimage import gaussian_filter as _gauss_filt
 
