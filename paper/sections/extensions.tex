@@ -3,7 +3,7 @@
 \section{CMB-Side Extensions}
 \label{sec:extensions}
 
-Extensions that modify recombination physics---primordial magnetic fields ($B_\mathrm{PMF}$), and Early Dark Energy (EDE)--- or phenomenological extensions that modify the amplitud of lensing such as $A_\mathrm{lens}$ can shift the CMB posterior on \omh without introducing new low-redshift distance signatures. Unlike spatial curvature (Section~\ref{sec:curvature}), these extensions do not open measurable new directions beyond \czero.
+We consider three CMB-side extensions that can shift the CMB posterior on \omh without leaving distinct low-redshift distance signatures: (i) primordial magnetic fields ($B_\mathrm{PMF}$), parametrized by the RMS field amplitude on Mpc scales, which clump baryons and modifies how the universe recombines; (ii) early dark energy (EDE) with potential index $n = 2$ (the canonical Smith~et~al.~(2020) flavor); and (iii) the phenomenological lensing rescaling $A_\mathrm{lens}$, a multiplicative factor on the smoothing of CMB acoustic peaks by gravitational lensing ($A_\mathrm{lens} = 1$ in \LCDM \citep{Calabrese2008}). Unlike spatial curvature (Section~\ref{sec:curvature}), these extensions do not open measurable new directions beyond \czero.
 
 \subsection{How Extensions Shift \czero}
 \label{sec:ext_c0_shifts}
@@ -27,16 +27,20 @@ EDE $n=2$ & $+0.85$ & 1.88 & $+1.8\sigma$ & $\approx$ \LCDM \\
 
 \evidence{alens_dilutes}{ev_ext_c0_table}{Extension \czero table showing $A_\mathrm{lens}$ reduces tension by ${\sim}50\%$.}
 
-$A_\mathrm{lens}$ and $B_\mathrm{PMF}$ reduce tension by broadening the CMB posterior on distance-relevant parameters---not by fitting the data better. $A_\mathrm{lens}$ reveals that the CMB \omh constraint has a lensing component: it is not purely from peak heights. Freeing $A_\mathrm{lens}$ both broadens \emph{and} shifts the \omh posterior, reflecting the known $\tau$--$A_\mathrm{lens}$ degeneracy ($A\, e^{-2\tau}$ controls the lensing amplitude).
+Allowing $A_\mathrm{lens}$ or $B_\mathrm{PMF}$ to vary both broadens and shifts the CMB \omh posterior, which reduces the BAO \czero tension (Table~\ref{tab:ext_c0}; Figure~\ref{fig:ext_c0_dists}). $A_\mathrm{lens}$ reveals that the CMB constraint on \omh has a lensing component: in \LCDM the amplitude of the acoustic peaks and the smoothing of those peaks by lensing are tied together (both depend on the primordial amplitude $A_s$ and the late-time growth); freeing $A_\mathrm{lens}$ decouples the two and lets the \omh marginal posterior shift.
 
-EDE $n=2$ barely changes \czero---indistinguishable from \LCDM in \czero space.
+\claim{tau_single_point_failure}{A Planck low-$\ell$ $\tau$ systematic---partially degenerate with $A_\mathrm{lens}$ through $A_s e^{-2\tau}$---would shift the CMB \omh and dilute the BAO \czero tension, acting as a single-point failure for CMB-anchored analyses.}
+\depends{tau_single_point_failure}{alens_dilutes}
+A natural reading of this result is in terms of the optical depth uncertainties. \citet{Sailer2026} have shown that within \LCDM, dropping Planck's low-$\ell$ polarization and letting the remaining CMB + DESI~DR2 BAO + CMB lensing data determine $\tau$ themselves yields $\tau = 0.090 \pm 0.012$, in $\sim 3$--$5\sigma$ tension with the low-$\ell$ measurement $\tau = 0.054 \pm 0.007$. Thus this is one mechanism that would remove the tension that drives most of the preference of dynamical dark energy. One can make a back-of-envelope estimate to understand the mechanism. The CMB lensing reconstruction constrains $A_s\,(\Omega_m^{0.6} h)^{2.3}$ to $\sim 3\%$ \citep[Planck 2015 XV, Eq.~14;][]{Planck2015lensing}, improved to $\sim 2\%$ with Planck~PR4 / ACT~DR6 \citep[Eq.~49;][]{Qu2023}. The CMB temperature anisotropies determine $A_s e^{-2\tau}$ to $\sim 0.3\%$; combined with the low-$\ell$ polarization constraint $\sigma_\tau \simeq 0.006$, this gives $\sigma(\ln A_s) \simeq 1.2\%$. Using $\Omega_m^{0.6} h = \omega_m^{0.8} (\Omega_m h^3)^{-0.2}$ and the $\sim 0.3\%$ acoustic-scale determination of $\Omega_m h^3$, the implied lensing-only constraint on \omh{} is $\sim 1.2$--$1.9\%$. The primary-anisotropy constraint on \omh{} is $\sim 0.8\%$, so the lensing contribution is comparable to the primary such that when the central values disagree the joint posterior peak can shift by a non-negligible fraction of $\sigma_\mathrm{primary}$. It motivates the need to improve the precision of the low-$\ell$ polarization measurements.
 
-\begin{figure}[t]
+EDE $n = 2$ barely changes \czero: its predicted distribution is indistinguishable from \LCDM in \czero (Table~\ref{tab:ext_c0}).
+
+\begin{figure*}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures/fig_ext_c0_dists.pdf}
-\caption{BAO \czero distributions under beyond-\LCDM extension chains. Blue: ACT \LCDM. Colored: extension chains projected onto the same \czero direction. Red dashed: DESI data ($\sigma = 1$). The right panel shows Union3 for comparison.}
+\includegraphics[width=\textwidth]{figures/fig_ext_c0_dists.pdf}
+\caption{BAO \czero distributions under beyond-\LCDM extension chains. Blue: ACT \LCDM. Colored: extension chains projected onto the same \czero direction. Red dashed: DESI data ($\sigma = 1$). The right panel shows Union3 for comparison. The point: freeing $A_\mathrm{lens}$ or $B_\mathrm{PMF}$ broadens and shifts the predicted \czero toward the data and so reduces the BAO tension, whereas EDE leaves it essentially unchanged.}
 \label{fig:ext_c0_dists}
-\end{figure}
+\end{figure*}
 
 \subsection{No New Measurable Directions}
 \label{sec:ext_new_directions}
@@ -47,12 +51,12 @@ EDE $n=2$ barely changes \czero---indistinguishable from \LCDM in \czero space.
 \colhead{Extension} & \colhead{Probe} & \colhead{\sigres} & \colhead{Meas.?} & \colhead{Tension}
 }
 \startdata
-EDE $n=2$ & BAO & 0.24 & $\times$ & --- \\
-$A_\mathrm{lens}$ & BAO & 0.08 & $\times$ & --- \\
-$B_\mathrm{PMF}$ & BAO & 0.17 & $\times$ & --- \\
+EDE $n=2$ & BAO & 0.14 & $\times$ & --- \\
+$A_\mathrm{lens}$ & BAO & 0.07 & $\times$ & --- \\
+$B_\mathrm{PMF}$ & BAO & 0.16 & $\times$ & --- \\
 \enddata
 \end{deluxetable}
 
-None of these extensions opens a measurable new direction ($\sigres < 0.3$ for all, below the threshold of Section~\ref{sec:extension_svd_method}). The SVD residual cannot distinguish EDE from $A_\mathrm{lens}$ from $B_\mathrm{PMF}$ because none moves the low-$z$ prediction measurably beyond \czero. 
+None of these extensions opens a measurable new direction (Table~\ref{tab:new_directions}). The SVD residual cannot distinguish EDE, $A_\mathrm{lens}$, and $B_\mathrm{PMF}$ from each other or from \LCDM, because none of these extensions moves the low-$z$ prediction measurably beyond $V_0$.
 
 \dataref{ev_ext_table}{calculation/scripts/compute\_paper\_numbers.py}

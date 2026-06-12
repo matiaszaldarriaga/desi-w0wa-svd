@@ -267,11 +267,17 @@ def load_pantheon_plus(data_dir: Path | None = None) -> SNData:
     z = np.array(z_list)
     mu = np.array(mu_list)
 
-    # Load covariance
-    if cov_file.exists():
-        covariance = _load_cobaya_covariance(cov_file, len(z))
-    else:
-        covariance = np.diag(np.ones(len(z)) * 0.1**2)
+    # Load covariance. The SVD analysis works in whitened space (C^{-1/2} mu), so every
+    # downstream result depends entirely on C. Refuse to fabricate one if the file is
+    # missing --- fail loudly rather than return confidently-wrong cosmology.
+    if not cov_file.exists():
+        raise FileNotFoundError(
+            f"Supernova covariance file not found: {cov_file}. "
+            f"Run scripts/download_data.sh (see README); the analysis cannot proceed "
+            f"without the real covariance (a fabricated diagonal would silently bias every "
+            f"tension and measurability result)."
+        )
+    covariance = _load_cobaya_covariance(cov_file, len(z))
 
     errors = np.sqrt(np.diag(covariance))
 
@@ -487,11 +493,17 @@ def load_union3(data_dir: Path | None = None) -> SNData:
     z = np.array(z_list)
     mu = np.array(mb_list)  # Note: this is mb, not distance modulus
 
-    # Load covariance
-    if cov_file.exists():
-        covariance = _load_cobaya_covariance(cov_file, len(z))
-    else:
-        covariance = np.diag(np.ones(len(z)) * 0.1**2)
+    # Load covariance. The SVD analysis works in whitened space (C^{-1/2} mu), so every
+    # downstream result depends entirely on C. Refuse to fabricate one if the file is
+    # missing --- fail loudly rather than return confidently-wrong cosmology.
+    if not cov_file.exists():
+        raise FileNotFoundError(
+            f"Supernova covariance file not found: {cov_file}. "
+            f"Run scripts/download_data.sh (see README); the analysis cannot proceed "
+            f"without the real covariance (a fabricated diagonal would silently bias every "
+            f"tension and measurability result)."
+        )
+    covariance = _load_cobaya_covariance(cov_file, len(z))
 
     errors = np.sqrt(np.diag(covariance))
 

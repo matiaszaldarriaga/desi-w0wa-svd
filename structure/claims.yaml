@@ -4,7 +4,7 @@
 
 claims:
   - id: c0_universal
-    statement: "All four distance probes define the same leading SVD direction c0 (inner products > 0.996)."
+    statement: "All four distance probes define the same leading SVD direction V0, whose data amplitude is c0 (cross-probe inner products > 0.996)."
     section: "§3 universal_c0"
     file: universal_c0.tex
     line: 6
@@ -62,7 +62,7 @@ claims:
     file: introduction.tex (line 8), w0wa_reinterpretation.tex (line 7)
     evidence:
       - id: ev_w0wa_tensions
-        description: "BAO c1 tension +1.3 sigma vs LCDM; c0 tension +2.2 sigma (ACT chain, per-sample rdrag)."
+        description: "BAO c1 tension +1.2 sigma vs LCDM; c0 tension +2.2 sigma (ACT chain, per-sample rdrag)."
         data_refs:
           - calculation/scripts/compute_paper_numbers.py
     depends_on: [c0_tensions_sign]
@@ -72,7 +72,7 @@ claims:
     statement: "Even in the w0wa extension, c0 (the Omega_m h^2 direction) has the largest grid range for every probe."
     section: "§5 w0wa_reinterpretation"
     file: w0wa_reinterpretation.tex
-    line: 31
+    line: 33
     evidence:
       - id: ev_grid_ranges
         description: "Table 6: BAO c0 range=104 vs c1 range=34; SN c0 range 45-55 vs c1 range 8-9."
@@ -85,7 +85,7 @@ claims:
     statement: "When c_alpha are freed from the w0wa constraint, BAO data measures c0, c2, c3 but not c1: the dark energy direction carries no information."
     section: "§5 w0wa_reinterpretation"
     file: w0wa_reinterpretation.tex
-    line: 118
+    line: 123
     evidence:
       - id: ev_data_projections
         description: "BAO a1 near zero vs a2, a3 significant; w0wa plane coloring shows chain enters through c2."
@@ -98,7 +98,7 @@ claims:
     statement: "At the BAO c1 pivot (z = 0.46), w = -0.94 +/- 0.052 (+1.2 sigma): consistent with a cosmological constant."
     section: "§5 w0wa_reinterpretation"
     file: w0wa_reinterpretation.tex
-    line: 169
+    line: 176
     evidence:
       - id: ev_pivot_analysis
         description: "Pivot redshifts from linear fits to w0wa grid; w_p from Planck+DESI chain."
@@ -108,7 +108,7 @@ claims:
     status: established
 
   - id: only_omk_measurable
-    statement: "Only spatial curvature (BAO) opens a genuinely new measurable direction beyond c0 (sigma_res = 5.3)."
+    statement: "Only spatial curvature (BAO) opens a genuinely new measurable direction beyond c0 (sigma_res = 2.11, std metric)."
     section: "§6 curvature"
     file: curvature.tex
     line: 6
@@ -134,20 +134,20 @@ claims:
     status: established
 
   - id: sn_blind_curvature
-    statement: "SN probes cannot measure curvature (sigma_res < 0.02 for all three datasets)."
+    statement: "SN probes cannot measure curvature (sigma_res < 0.1 for all three datasets)."
     section: "§6 curvature"
     file: curvature.tex
     line: 54
     evidence:
       - id: ev_sn_omk
-        description: "SN sigma_res < 0.02 for Omega_k across all 3 datasets."
+        description: "SN sigma_res < 0.1 (0.046-0.053, std metric) for Omega_k across all 3 datasets (paper_numbers.json table13_new_directions)."
         data_refs:
           - calculation/scripts/compute_paper_numbers.py
     depends_on: [only_omk_measurable]
     status: established
 
   - id: alens_dilutes
-    statement: "A_lens reduces BAO c0 tension from 2.2 sigma to 1.1 sigma by broadening the CMB posterior."
+    statement: "A_lens reduces BAO c0 tension from 2.2 sigma to 1.1 sigma by broadening the CMB posterior; the same physics underlies the Sailer+25 finding that the rest of the data prefer tau ~ 0.09."
     section: "§7 extensions"
     file: extensions.tex
     line: 11
@@ -157,4 +157,20 @@ claims:
         data_refs:
           - calculation/scripts/compute_paper_numbers.py
     depends_on: [c0_tensions_sign]
+    status: established
+
+  - id: tau_single_point_failure
+    statement: "A high-tau (~0.09) universe and a high-A_lens universe are partially degenerate through A_s exp(-2tau); both reduce the apparent w0wa preference by a similar factor (~2x). A Planck low-l tau systematic would be a single-point failure for every CMB-based cosmological analysis."
+    section: "§7 extensions (also §1 introduction, §8 conclusions)"
+    file: extensions.tex
+    evidence:
+      - id: ev_sailer_2025
+        description: "Sailer+25 (arXiv:2504.16932): tau=0.090+/-0.012 from CMB+lensing+DESI within LambdaCDM, ~3-5 sigma above Planck low-l. Empirical degeneracy Omega_m(tau) ~ 0.349 - 0.505 tau."
+        data_refs:
+          - input/literature/2504.16932/paper.pdf
+      - id: ev_ext_c0_table
+        description: "Our Table 12: A_lens reduces BAO c0 tension from 2.2 sigma to 1.1 sigma."
+        data_refs:
+          - calculation/scripts/compute_paper_numbers.py
+    depends_on: [alens_dilutes]
     status: established

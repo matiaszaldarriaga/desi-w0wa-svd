@@ -3,18 +3,17 @@
 \section{Why \texorpdfstring{\czero}{c0} Is Dominated by \texorpdfstring{\omh}{omega\_m}}
 \label{app:universality}
 
-We derive the $\beta$-vector and $R^2$ values reported in Section~\ref{sec:c0_interpretation} from the logarithmic derivatives of single-redshift distance proxies, combined with the CMB parameter covariance. The only inputs are: (i)~the response of two proxy observables to each relevant CMB parameter, computed numerically; and (ii)~the $3 \times 3$ correlation matrix of $(\omh, \obh, \thetastar)$ from the ACT chain. We present this to gain some intuition about the results, becasue of course these proxy observables are not the ones that are used to compute the \czero and \cone directions.
+This appendix shows that the $\beta$-vector and $R^2$ values reported in Section~\ref{sec:c0_interpretation} can be reproduced analytically from the response of a single-redshift distance proxy to the CMB parameters, together with the $3 \times 3$ CMB correlation matrix. The result is presented for intuition: the SVD analysis in the main text uses the full 13-point BAO and 22-point SN datasets, not the simplified single-redshift proxy here.
 
 \subsection{Proxy Observables and Their Derivatives}
 \label{app:proxies}
-
-We use two proxy observables to represent the full 13-point BAO and 22-point SN datasets:
+We use two proxy observables to represent the full 13-point BAO and 22-point SN datasets. Throughout this appendix $\DM(z) \equiv c\int_0^z dz'/H(z')$ is the comoving distance defined in Section~\ref{sec:data} (the line-of-sight and transverse distances coincide for the flat models used here):
 \begin{itemize}
-\item \textbf{BAO proxy:} $D(z{=}0.5)/r_d$, the comoving distance at $z=0.5$ in units of the drag horizon.
-\item \textbf{SN proxy:} $D(z{=}0.3)/D(z{=}0.5)$, the ratio of comoving distances at two redshifts. This ratio is independent of $r_d$ and of the absolute luminosity $M_B$, capturing only the \emph{shape} of the distance--redshift relation that SN constrain after $M_B$ marginalization.
+\item \textbf{BAO proxy:} $\DM(0.5)/r_d$, the comoving distance at $z=0.5$ in units of the drag-epoch sound horizon $r_d$.
+\item \textbf{SN proxy:} $\DM(0.3)/\DM(0.5)$, the ratio of comoving distances at two redshifts. This ratio is independent of $r_d$ and of the absolute luminosity $M_B$, capturing only the \emph{shape} of the distance--redshift relation that SN constrain after $M_B$ marginalization.
 \end{itemize}
 
-For each proxy, we compute logarithmic derivatives $g_p = \partial \ln (\text{obs}) / \partial \ln p$ for $p \in \{\omh, \obh, \thetastar\}$ by finite differences around the fiducial cosmology. For the $\omh$ and $\obh$ scans, $\thetastar$ is held fixed by solving for $H_0$ such that $\thetastar = r_s(z_\star) / D_M(z_\star)$. For the $\thetastar$ scan, $(\omh, \obh)$ are held fixed while the angular scale constraint is varied.
+For each proxy, we compute logarithmic derivatives $g_p = \partial \ln (\text{obs}) / \partial \ln p$ for $p \in \{\omh, \obh, \thetastar\}$ by finite differences around the fiducial cosmology. All derivatives are taken along the $\thetastar$-fixed slice---for each shift in $(\omh, \obh)$ we solve for the $H_0$ that keeps $\thetastar$ at its fiducial value---reflecting that the CMB pins the angular scale of the sound horizon orders of magnitude more tightly than $H_0$ itself. The $\thetastar$ scan instead varies $\thetastar$ explicitly.
 
 The per-sigma sensitivity $f_p$ combines the log derivative with the CMB fractional error:
 \begin{equation}
@@ -25,46 +24,46 @@ Table~\ref{tab:derivs_and_f} lists $g_p$, $\sigma_p^{\rm frac}$, and $f_p$ for t
 
 \begin{table}[t]
 \centering
-\caption{Log derivatives, fractional errors, and per-sigma sensitivities for the BAO proxy $D(0.5)/r_d$. The bottom two rows show the SN proxy log derivatives for comparison.\label{tab:derivs_and_f}}
+\caption{Log derivatives, fractional errors, and per-sigma sensitivities for the BAO proxy $\DM(0.5)/r_d$. The bottom two rows show the SN proxy log derivatives for comparison.\label{tab:derivs_and_f}}
 \begin{tabular}{l@{\hspace{12pt}}c@{\hspace{12pt}}c@{\hspace{12pt}}c}
 \hline\hline
  & $\omh$ & $\obh$ & $\thetastar$ \\
 \hline
-\multicolumn{4}{l}{\textit{BAO proxy:} $D(0.5)/r_d$} \\[2pt]
-$g_p = \partial\ln(D/r_d)/\partial\ln p$ & $+0.79$ & $-0.26$ & $-4.07$ \\
+\multicolumn{4}{l}{\textit{BAO proxy:} $\DM(0.5)/r_d$} \\[2pt]
+$g_p = \partial\ln(\DM/r_d)/\partial\ln p$ & $+0.79$ & $-0.26$ & $-4.07$ \\
 $\sigma_p / \langle p \rangle$ & $0.81\%$ & $0.51\%$ & $0.025\%$ \\
 $f_p \;(\times 10^3)$ & $+6.4$ & $-1.3$ & $-1.0$ \\
 $|f_p / f_{\omh}|$ & $1$ & $0.21$ & $0.16$ \\[4pt]
 \hline
-\multicolumn{4}{l}{\textit{SN proxy:} $D(0.3)/D(0.5)$} \\[2pt]
+\multicolumn{4}{l}{\textit{SN proxy:} $\DM(0.3)/\DM(0.5)$} \\[2pt]
 $g_p$ & $+0.10$ & $-0.04$ & $-0.41$ \\
 $f_p \;(\times 10^3)$ & $+0.84$ & $-0.20$ & $-0.10$ \\
 \hline
 \end{tabular}
-\tablecomments{The dominance of $\omh$ arises from the combination of a moderately larger log derivative ($|g_{\omh}|/|g_{\obh}| \approx 3$) and a moderately larger fractional error ($1.6\times$). The $\thetastar$ derivative is the largest in magnitude, but its tiny fractional error ($0.025\%$) suppresses its contribution. The $D(0.3)/D(0.5)$ derivatives are smaller because $H_0$ cancels in the ratio.}
+\tablecomments{The dominance of $\omh$ arises from the combination of a moderately larger log derivative ($|g_{\omh}|/|g_{\obh}| \approx 3$) and a moderately larger fractional error ($1.6\times$). The $\thetastar$ derivative is the largest in magnitude, but its tiny fractional error ($0.025\%$) suppresses its contribution. The $\DM(0.3)/\DM(0.5)$ derivatives are smaller because $H_0$ cancels in the ratio.}
 \end{table}
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/fig_app_derivatives.pdf}
-\caption{Proxy observables as a function of each CMB parameter (in units of $\sigma_p$ from the ACT chain). Left: BAO proxy $D(0.5)/r_d$. Right: SN proxy $D(0.3)/D(0.5)$. All curves computed at fixed $\thetastar$ (solving for $H_0$), except the $\thetastar$ curve which varies the angular scale constraint. The slope at the origin times $\sigma_p / \langle p \rangle$ gives $f_p$ (Table~\ref{tab:derivs_and_f}).}
+\caption{Proxy observables as a function of each CMB parameter (in units of $\sigma_p$ from the ACT chain). Left: BAO proxy $\DM(0.5)/r_d$. Right: SN proxy $\DM(0.3)/\DM(0.5)$. All curves computed at fixed $\thetastar$ (solving for $H_0$), except the $\thetastar$ curve which varies the angular scale constraint. The slope at the origin times $\sigma_p / \langle p \rangle$ gives $f_p$ (Table~\ref{tab:derivs_and_f}). The much steeper response to \omh than to \obh or \thetastar is what makes \czero predominantly an \omh mode.}
 \label{fig:app_derivatives}
 \end{figure}
 
 \subsection{From Derivatives to the \texorpdfstring{$\beta$}{beta}-Vector}
 \label{app:beta_derivation}
 
-We model $\czero$ as proportional to the variation of the proxy observable. In sigma-normalized variables $\hat{p} = (p - \langle p \rangle)/\sigma_p$:
+We \emph{posit}---as a one-parameter ansatz, to be checked against the SVD output---that within the CMB posterior, $\czero$ depends linearly on the proxy observable. Writing the dependence in sigma-normalized parameters $\hat{p} = (p - \langle p \rangle)/\sigma_p$, this means
 \begin{equation}
 c_0 = -\alpha \sum_p f_p \, \hat{p} + \mathrm{const},
 \label{eq:c0_linear_model}
 \end{equation}
-where $\alpha > 0$ is the overall SVD normalization. The paper reports the regression coefficients in doubly normalized form (Eq.~\ref{eq:c0_formula}):
+for some proportionality constant $\alpha > 0$ that we will not need to compute. The main text reports the regression coefficients in the standardized form $\beta_p / \sigma(c_0)$, where $\beta_p = -\alpha f_p$ is the regression slope on $\hat{p}$ and $\sigma(c_0) = \alpha \sqrt{\mathbf{f}^\top \boldsymbol{\rho}\, \mathbf{f}}$ is the chain standard deviation of $c_0$ implied by the ansatz, with $\boldsymbol{\rho}$ the $3 \times 3$ correlation matrix of $(\omh, \obh, \thetastar)$. The ratio
 \begin{equation}
 \frac{\beta_p}{\sigma(c_0)} = \frac{-f_p}{\sqrt{\mathbf{f}^\top \boldsymbol{\rho}\, \mathbf{f}}},
 \label{eq:beta_over_sigma}
 \end{equation}
-where $\boldsymbol{\rho}$ is the $3 \times 3$ correlation matrix of $(\omh, \obh, \thetastar)$ from the CMB chain. This expression is $\alpha$-free: $\alpha$ appears in both $\beta_p = -\alpha f_p$ and $\sigma(c_0) = \alpha \sqrt{\mathbf{f}^\top \boldsymbol{\rho}\, \mathbf{f}}$ and cancels in the ratio. For the ACT chain:
+is manifestly independent of $\alpha$: we cannot predict the absolute scale of $c_0$ from the proxy (it depends on the full SVD normalization), but we \emph{can} predict which combination of CMB parameters dominates the chain variation of $c_0$---and that is what the paper compares against. For the ACT chain:
 \begin{equation}
 \boldsymbol{\rho} = \begin{pmatrix} 1 & -0.30 & -0.21 \\ -0.30 & 1 & +0.26 \\ -0.21 & +0.26 & 1 \end{pmatrix}.
 \label{eq:rho_matrix}
@@ -80,14 +79,14 @@ R^2_k = \frac{[\boldsymbol{\rho}\,\mathbf{f}]_k^\top \; \boldsymbol{\rho}_{kk}^{
 \end{equation}
 where $[\boldsymbol{\rho}\,\mathbf{f}]_k$ denotes the first $k$ components of $\boldsymbol{\rho}\,\mathbf{f}$ and $\boldsymbol{\rho}_{kk}$ is the $k \times k$ upper-left submatrix of $\boldsymbol{\rho}$. This is manifestly $\leq 1$ (a squared projection) and equals unity when $k$ equals the total number of parameters.
 
-Table~\ref{tab:beta_comparison} and Figure~\ref{fig:app_beta_prediction} compare the predictions from both proxies with the chain regression.
+Table~\ref{tab:beta_comparison} compares the predictions from both proxies with the chain regression.
 
 \begin{table}[t]
 \centering
 \caption{Predicted vs.\ observed $\beta/\sigma(c_0)$ and $R^2$.\label{tab:beta_comparison}}
 \begin{tabular}{l@{\hspace{10pt}}c@{\hspace{10pt}}c@{\hspace{10pt}}c}
 \hline\hline
-Quantity & $D(0.5)/r_d$ & $D(0.3)/D(0.5)$ & Chain \\
+Quantity & $\DM(0.5)/r_d$ & $\DM(0.3)/\DM(0.5)$ & $\Lambda$CDM (ACT chain) \\
 \hline
 $\beta_{\omh}/\sigma$ & $-0.88$ & $-0.88$ & $-0.90$ \\
 $\beta_{\obh}/\sigma$ & $+0.18$ & $+0.21$ & $+0.13$ \\
@@ -101,22 +100,15 @@ $R^2(\text{all 3})$ & $1.00$ & $1.00$ & $1.00$ \\
 \tablecomments{Both proxies predict $\beta_{\omh}/\sigma$ to within 2\%. The $\obh$ and $\thetastar$ coefficients differ by ${\sim}\,30\%$ because the baryon loading of $r_d$ and the $\thetastar$ sensitivity vary with redshift, and a single-redshift proxy cannot capture this. The key result $R^2(\omh) \approx 0.95$ is reproduced by both proxies.}
 \end{table}
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=\columnwidth]{figures/fig_app_beta_prediction.pdf}
-\caption{Predicted $\beta/\sigma(c_0)$ from single-redshift proxies compared with the chain regression (Table~\ref{tab:beta_vectors}). The $\omh$ coefficient is predicted to within 2\% by both proxies; the $\obh$ and $\thetastar$ coefficients differ by ${\sim}\,30\%$ because their sensitivities vary with redshift across the full dataset.}
-\label{fig:app_beta_prediction}
-\end{figure}
-
 \subsection{Physical Interpretation}
 \label{app:physics}
 
 The dominance of $\omh$ follows from three effects, all quantified above:
 
-\textit{(i)~Larger per-sigma sensitivity.} For $D(0.5)/r_d$, $|f_{\omh}|$ is $4.8\times$ larger than $|f_{\obh}|$ and $6.2\times$ larger than $|f_{\thetastar}|$ (Table~\ref{tab:derivs_and_f}). This arises from the product of two moderate ratios: $|g_{\omh}|/|g_{\obh}| \approx 3$ (the log derivative) times $\sigma_{\omh}^{\rm frac}/\sigma_{\obh}^{\rm frac} \approx 1.6$ (the fractional error). Neither factor alone is dramatically large, but their product gives a factor $\sim 5$.
+\textit{(i)~Larger per-sigma sensitivity.} For $\DM(0.5)/r_d$, $|f_{\omh}|$ is $4.8\times$ larger than $|f_{\obh}|$ and $6.2\times$ larger than $|f_{\thetastar}|$ (Table~\ref{tab:derivs_and_f}). This arises from the product of two moderate ratios: $|g_{\omh}|/|g_{\obh}| \approx 3$ (the log derivative) times $\sigma_{\omh}^{\rm frac}/\sigma_{\obh}^{\rm frac} \approx 1.6$ (the fractional error). Neither factor alone is dramatically large, but their product gives a factor $\sim 5$.
 
 \textit{(ii)~Chain correlations.} The negative correlation $\rho(\omh, \obh) = -0.30$ means that when we regress $\czero$ on $\omh$ alone, the regression coefficient absorbs part of the $\obh$ effect through the correlated component. Quantitatively, Eq.~\eqref{eq:R2_prediction} predicts $R^2(\omh) = 0.94$: the $\omh$-only regression captures not just the direct $\omh$ sensitivity but also the portion of $\obh$ and $\thetastar$ variation that is correlated with $\omh$.
 
-\textit{(iii)~SN and $M_B$ marginalization.} For SN, which marginalize over the absolute magnitude $M_B$, the relevant observable is the \emph{shape} of the distance--redshift relation rather than the absolute scale. The proxy $D(0.3)/D(0.5)$ captures this. Despite the small $D(0.3)/D(0.5)$ log derivative ($g_{\omh} = +0.10$, compared to $+0.79$ for $D/r_d$), the predicted $\beta/\sigma(c_0)$ is similar because the overall normalization $\sqrt{\mathbf{f}^\top \boldsymbol{\rho}\, \mathbf{f}}$ is also correspondingly smaller.
+\textit{(iii)~SN and $M_B$ marginalization.} For SN, which marginalize over the absolute magnitude $M_B$, the relevant observable is the \emph{shape} of the distance--redshift relation, captured here by the ratio $\DM(0.3)/\DM(0.5)$. Its log derivatives are much smaller than the BAO proxy's ($g_{\omh} = +0.10$ versus $+0.79$ for $\DM/r_d$), so the SN proxy responds far less in absolute terms. But the quantity the paper compares, $\beta_p/\sigma(c_0)$, is a \emph{unit-normalized} vector (Eq.~\ref{eq:beta_over_sigma}): dividing by $\sigma(c_0)$ scales out the overall size of the response and leaves only \emph{which} parameter is most responsible for the chain scatter of $c_0$, not how large that scatter is. Because the normalization $\sqrt{\mathbf{f}^\top \boldsymbol{\rho}\, \mathbf{f}}$ shrinks in proportion to the smaller $\mathbf{f}$, the \emph{direction} of the $\beta$-vector comes out essentially the same as for BAO --- which is why both probes identify \czero with the same \omh combination, even though SN constrain its amplitude far more weakly.
 
-%An important subtlety is that all derivatives are computed at fixed $\thetastar$, which links $H_0$ to $(\omh, \obh)$ through the constraint $\thetastar = r_s / D_M(z_\star)$. In particular, $\partial \ln \Omega_m / \partial \ln \omh \big|_{\thetastar} \approx 2.6$---larger than the naive expectation of unity---because increasing $\omh$ \emph{decreases} $H_0$ (to compensate the larger distance to last scattering), which amplifies the change in $\Omega_m = \omh / h^2$. This amplification is why even the SN distance ratio, which depends on $\Omega_m$ rather than $\omh$ directly, has substantial sensitivity to $\omh$ within the CMB posterior.
+The SN sensitivity to \omh survives \MB marginalization for a physical reason worth stating. All derivatives are taken at fixed $\thetastar$, which links $H_0$ to $(\omh, \obh)$ through $\thetastar = r_\star / \DM(z_\star)$. Increasing \omh then \emph{decreases} $H_0$ (to hold the distance to last scattering fixed), which amplifies the induced change in $\Omega_m = \omh/h^2$. Evaluated at fixed $\thetastar$, $\partial \ln \Omega_m / \partial \ln \omh \big|_{\thetastar} \approx 2.6$ (computed in the reproducible pipeline and confirmed by a direct regression of $\ln\Omega_m$ on $\ln\omh$ across the ACT \LCDM posterior) --- substantially larger than the naive value of unity that would hold at fixed $H_0$. This is why even the $M_B$-marginalized SN distance \emph{shape}, which depends on $\Omega_m$ rather than \omh directly, retains substantial sensitivity to \omh within the CMB posterior.

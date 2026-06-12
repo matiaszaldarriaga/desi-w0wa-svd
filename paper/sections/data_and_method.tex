@@ -6,11 +6,17 @@
 \subsection{Data}
 \label{sec:data}
 
+We use three classes of low-redshift distance data, summarized in Table~\ref{tab:datasets}: DESI DR2 BAO measurements, three SN compilations (Union3, Pantheon+, DES-Dovekie), and the ACT DR6 / Planck 2018 CMB chains we use as the high-redshift reference. Each is described in turn below.
+
 \subsubsection{DESI DR2 BAO}
 
-We use the official DESI DR2 BAO measurements from \citet{DESI_DR2_BAO}. The data consists of 13 observables spanning $z = 0.295$ to $z = 2.330$: one isotropic measurement ($\DV/\rs$) from the Bright Galaxy Survey (BGS) at $z = 0.295$, and six anisotropic measurement pairs ($\DM/\rs$, $\DHubble/\rs$) from Luminous Red Galaxies (LRG), Emission Line Galaxies (ELG), Quasars (QSO), and Lyman-$\alpha$ tracers.
+We use the official DESI DR2 BAO measurements from \citet{DESI_DR2_BAO}. The data consist of 13 observables spanning $z = 0.295$ to $z = 2.330$: one isotropic measurement ($\DV/\rs$) from the Bright Galaxy Survey (BGS) at $z = 0.295$, plus six anisotropic redshift bins each contributing two observables ($\DM/\rs$ and $\DHubble/\rs$), for a total of $1 + 6 \times 2 = 13$ observables from Luminous Red Galaxies (LRG), Emission Line Galaxies (ELG), Quasars (QSO), and Lyman-$\alpha$ tracers.
 
-The full $13 \times 13$ covariance matrix is block-diagonal by redshift; $\DM$ and $\DHubble$ measurements at the same redshift show strong anti-correlation ($r \approx -0.4$), arising because both quantities are derived from the same BAO peak position.
+The BAO observables are ratios of distances to the sound horizon. The comoving transverse distance is $\DM(z) = c\int_0^z dz'/H(z')$ (for the spatially flat models considered here; \Omk{} is reinstated in Section~\ref{sec:curvature}), the Hubble distance is $\DHubble(z) = c/H(z)$, and the volume-averaged distance is $\DV(z) = [z\,\DM(z)^2\,\DHubble(z)]^{1/3}$. For the supernovae the observable is the distance modulus $\mu(z) = 5\log_{10}[d_L(z)/10\,\mathrm{pc}]$, with luminosity distance $d_L(z) = (1+z)\,\DM(z)$. Here $\rs$ is the comoving size of the sound horizon at the baryon \emph{drag} epoch ($z_d \approx 1060$), the scale imprinted on the baryon distribution that calibrates the BAO feature \citep{DESI_DR2_BAO,ACT_DR6_extended}. It differs from the sound horizon at last scattering, $r_\star$ (sometimes written $r_{s,\star}$), which sets the CMB acoustic scale $\thetastar$; the two have different numerical values, and throughout we use the drag-epoch quantity $\rs$ to normalize the BAO distances. Our fiducial value is $\rs = 147.09$~Mpc.
+
+The full $13 \times 13$ covariance matrix is block-diagonal in redshift --- measurements in different redshift bins are uncorrelated, while within each anisotropic bin $\DM/\rs$ and $\DHubble/\rs$ are jointly fit to the same 2D BAO feature and so are strongly anti-correlated ($r \approx -0.4$).
+
+It is worth quantifying how tightly the CMB pins these distance ratios at high redshift. The acoustic scale $\thetastar = r_\star/\DM(z_\star)$, evaluated at the last-scattering redshift $z_\star$, is constrained to $0.025\%$ across the ACT \LCDM chain used below, so $\DM(z_\star)/r_\star$ is essentially fixed. The BAO observables differ only in normalizing by the drag-epoch horizon $\rs$ rather than $r_\star$ and---for $\DV$---in carrying an extra factor of the Hubble rate. Propagating these through the chain, $\DM(z_\star)/\rs$ has only $0.032\%$ scatter (the drag and last-scattering horizons are tightly correlated) and $\DV(z_\star)/\rs$ only $0.061\%$, both far below DESI's percent-level measurement errors. This is the quantitative reason the distance-ratio curves must return to the fiducial cosmology at high redshift, whatever the low-redshift expansion history.
 
 \begin{deluxetable*}{lcccc}
 \tablecaption{Dataset Summary \label{tab:datasets}}
@@ -18,17 +24,18 @@ The full $13 \times 13$ covariance matrix is block-diagonal by redshift; $\DM$ a
 \colhead{Probe} & \colhead{$N_\mathrm{obs}$} & \colhead{$z$ range} & \colhead{Observable} & \colhead{Source}
 }
 \startdata
-DESI DR2 BAO & 13 & $0.30$--$2.33$ & $\DV/\rs$, $\DM/\rs$, $\DHubble/\rs$ & \citet{DESI_DR2_BAO} \\
+DESI DR2 BAO\tablenotemark{b} & 13 & $0.30$--$2.33$ & $\DV/\rs$, $\DM/\rs$, $\DHubble/\rs$ & \citet{DESI_DR2_BAO} \\
 Union3 & 22 & $0.05$--$2.26$ & $\mu(z)$ & \citet{Union3} \\
 Pantheon+ & 22\tablenotemark{a} & $0.04$--$2.12$ & $\mu(z)$ & \citet{PantheonPlus} \\
 DES-Dovekie & 19\tablenotemark{a} & $0.04$--$1.14$ & $\mu(z)$ & \citet{Popovic2025} \\
 \enddata
 \tablenotetext{a}{Binned to Union3 22-bin grid; Pantheon+ and DES-Dovekie have 3 empty bins at $z > 1.12$.}
+\tablenotetext{b}{See Table~\ref{tab:bao_observables} for the per-tracer breakdown.}
 \end{deluxetable*}
 
 \subsubsection{Type Ia Supernovae}
 
-We analyze three SN compilations: Union3 \citep{Union3} with 22 pre-binned redshift bins ($z = 0.05$--$2.26$), Pantheon+ \citep{PantheonPlus} with 1701 individual SNe ($z = 0.001$--$2.26$), and DES-Dovekie \citep{Popovic2025} with 1755 SNe ($z = 0.025$--$1.14$). All cosmologically relevant information lies in a space that is smooth as a function of redshift, so we bin all datasets to Union3's common 22-bin grid for direct comparability---$\sim 20$ bins capture the full cosmological content. We bin using inverse-variance weighted averages; the binning matrix $B_{ji} = w_i / W_j$ propagates covariance exactly: $C_\mathrm{bin} = B\, C_\mathrm{raw}\, B^T$. To ensure consistency between binned data and model predictions, we evaluate chain predictions at effective redshifts $z_\mathrm{eff}$ defined by $\mu_\mathrm{ref}(z_\mathrm{eff}) = (B\,\mu_\mathrm{ref}(z_\mathrm{raw}))_j$, absorbing correction from the nonlinearity of $\mu(z)$ across wide bins. After binning, all covariance matrices are well-behaved (positive-definite). Union3 has 22 occupied bins, Pantheon+ has 22, and DES-Dovekie has 19 (3 empty bins at $z > 1.14$). Calibration differences between datasets are absorbed by the absolute magnitude \MB marginalization (Section~\ref{sec:mb_marg}).
+We analyze three SN compilations: Union3 \citep{Union3} with 22 pre-binned redshift bins ($z = 0.05$--$2.26$), Pantheon+ \citep{PantheonPlus} with 1701 individual SNe ($z = 0.001$--$2.26$), and DES-Dovekie \citep{Popovic2025} with 1755 SNe ($z = 0.025$--$1.14$). All cosmologically relevant information lies in a space that is smooth as a function of redshift, so we bin all datasets to Union3's common 22-bin grid for direct comparability---$\sim 20$ bins capture the full cosmological content. We bin using inverse-variance weighted averages. Let $i$ index the raw (unbinned) SN points and $j$ index the coarsened bins. With inverse-variance weights $w_i$ and bin weights $W_j = \sum_{i \in j} w_i$, the binning matrix $B_{ji} = w_i / W_j$ propagates the raw covariance to the binned one as $C_\mathrm{bin} = B\, C_\mathrm{raw}\, B^T$. To ensure binned data and binned model predictions are compared consistently, we evaluate chain predictions at effective redshifts $z_{\mathrm{eff},j}$ defined by $\mu_\mathrm{ref}(z_{\mathrm{eff},j}) = (B\,\mu_\mathrm{ref}(z_\mathrm{raw}))_j$, absorbing the bias from the nonlinearity of $\mu(z)$ across wide bins. After binning, all covariance matrices are well-behaved (positive-definite). Union3 has 22 occupied bins, Pantheon+ has 22, and DES-Dovekie has 19 (3 empty bins at $z > 1.14$). Calibration differences between datasets are absorbed by the absolute magnitude \MB marginalization (Section~\ref{sec:mb_marg}).
 
 \subsubsection{CMB Chains}
 
@@ -57,7 +64,7 @@ Before developing the SVD framework, we preview the raw data-vs-model comparison
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/fig_dmdh_ratios.pdf}
-\caption{Anisotropic distance ratio ($\DM/\DHubble$) for DESI DR2 BAO compared to ACT \LCDM predictions, relative to the Planck reference. The blue band shows the $1\sigma$ ACT range. This ratio is less sensitive to the overall distance scale (both $\DM$ and $\DHubble$ share the same $\rs$ calibration) and probes the geometric anisotropy of the expansion history.}
+\caption{Anisotropic distance ratio ($\DM/\DHubble$) for DESI DR2 BAO compared to ACT \LCDM predictions, relative to the Planck reference. The blue band shows the $1\sigma$ ACT range. This ratio is insensitive to the overall distance scale (both $\DM$ and $\DHubble$ share the same $\rs$ calibration). The lowest-redshift point deviates from the low-$z$ limit, the feature that would force a rapid evolution of $w(z)$ in a fit.}
 \label{fig:dmdh_ratios}
 \end{figure}
 
@@ -70,19 +77,22 @@ Key observations: DESI $\DV/\rs$ measurements lie systematically below the CMB \
 \label{fig:sn_datasets}
 \end{figure}
 
-These data overviews (Figures~\ref{fig:dv_ratios}--\ref{fig:sn_datasets}) already reveal the key features that the SVD analysis will quantify. First, DESI $\DV/\rs$ measurements lie systematically below the CMB \LCDM prediction at $z \sim 0.5$--$1.0$: the Hubble rate must be higher than the reference cosmology at low redshifts to get the shorter distances. But $\thetastar$ fixes the distance to the last-scattering surface, so $H(z)$ must eventually drop below the reference at higher redshift to compensate---a requirement that, within the dark energy framework, implies $w < -1$ at some epoch. This is so becasue within the dark energy framework, the dark energy density must increase with time relative to the cosmological constant in LCDM, forcing the model to cross the phantom divide. Of course if we think of the combined dark-matter dark-energy fluid, whose equation of state is not close to $-1$, no such requirement exists.
+These data overviews (Figures~\ref{fig:dv_ratios}--\ref{fig:sn_datasets}) already reveal the key features that the SVD analysis will quantify. First, DESI $\DV/\rs$ measurements lie systematically below the CMB \LCDM prediction at $z \sim 0.5$--$1.0$: the Hubble rate must be higher than the reference cosmology at low redshifts to get the shorter distances. But $\thetastar$ fixes the distance to the last-scattering surface, so $H(z)$ must eventually drop below the reference at higher redshift to compensate---a requirement that, within the dark energy framework, implies $w < -1$ at some epoch. This is so because within the dark energy framework, the dark energy density must increase with time relative to the cosmological constant in LCDM, forcing the model to cross the phantom divide. Of course if we think of the combined dark-matter dark-energy fluid, whose equation of state is not close to $-1$, no such requirement exists.
 
-Second, the $\DM/\DHubble$ ratio approaches unity at low $z$ whernever the Hubble-law is a good approximatio to the distances and $H$ is approximately constant. The lowest DESI data point at $\DM/\DHubble = 1.04$ deviates from this limit, forcing a rapid evolution of $w(z)$ if one wants to fit this point. 
+Second, we also plot the ratio $(\DM/\DHubble)/(\DM/\DHubble)_\mathrm{ref}$ (Figure~\ref{fig:dmdh_ratios}), which approaches unity at low $z$ for any cosmology where the Hubble parameter can be considered constant in that limit. In that case, both terms in the ratio reduce to $z$, so deviations from unity at low $z$ are small. The lowest DESI data point at $\DM/\DHubble = 1.04$ deviates from this limit, forcing a rapid evolution of $w(z)$ if one wants to fit this point. 
 
-Third, the SN plots clearly shows that they will have significant less discrimination power than the BAO, simply by comparing the width of the \LCDM band to the error bars.
+Third, the SN plots show that they have substantially less constraining power than BAO: the error bars on the SN residuals are visibly wider than the $1\sigma$ ACT $\Lambda$CDM band.
 
 \subsection{SVD Methodology}
 \label{sec:svd_method}
 
+Throughout this section, $s = 1,\ldots,N$ indexes chain samples (we use $N = 2000$), $i = 1,\ldots,D$ indexes data observables (so $D = 13$ for BAO, $22$ for Union3 and Pantheon+, $19$ for DES-Dovekie), and $\alpha = 0, 1, \ldots, D-1$ indexes SVD modes ordered by decreasing singular value.
+
+We adopt one convention throughout. We call the $V_\alpha$ (the columns of $V$) \emph{modes} or \emph{directions}: unit vectors in whitened observable space. The scalar projection of a chain sample onto mode $\alpha$ is its \emph{chain amplitude} $c_\alpha^{(s)}$, and the projection of the data onto the same direction is the \emph{data amplitude} $a_\alpha$. When we write \czero, $c_1$, \ldots\ without a sample superscript we mean these amplitudes (the data amplitude when comparing to data, the chain mean when comparing to the model); the directions themselves are always written $V_0, V_1, \ldots$
 
 \subsubsection{BAO: Ratio Space}
 
-For each CMB chain sample, we compute the 13 BAO observables listed in Table~\ref{tab:bao_observables} at DESI redshifts, using that sample's own cosmological parameters---including its sample-specific sound horizon \rs. We form ratios of each chain prediction relative to the reference cosmology: $r_i^{(s)} = \mathrm{pred}_i^{(s)} / \mathrm{ref}_i - 1$, where $\mathrm{pred}_i^{(s)}$ is the predicted observable for chain sample $s$ and $\mathrm{ref}_i$ uses the Planck best-fit parameters (Section~\ref{sec:ref_cosmo}). The DESI observational covariance is transformed to ratio space: $C_\mathrm{ratio}(i,j) = C_\mathrm{abs}(i,j) / (\mathrm{ref}_i \times \mathrm{ref}_j)$.
+For each CMB chain sample, we compute the 13 BAO observables listed in Table~\ref{tab:bao_observables} at DESI redshifts, using that sample's own cosmological parameters---including its sample-specific sound horizon \rs. We form ratios of each chain prediction relative to the reference cosmology: $\delta_i^{(s)} = \mathrm{pred}_i^{(s)} / \mathrm{ref}_i - 1$, where $\mathrm{pred}_i^{(s)}$ is the predicted observable for chain sample $s$ and $\mathrm{ref}_i$ uses the Planck best-fit parameters (Section~\ref{sec:ref_cosmo}). The DESI observational covariance is transformed to ratio space: $C_\mathrm{ratio}(i,j) = C_\mathrm{abs}(i,j) / (\mathrm{ref}_i \times \mathrm{ref}_j)$.
 
 \begin{deluxetable}{cllc}
 \tablecaption{The 13 DESI DR2 BAO observables used in the SVD analysis. Each anisotropic redshift bin contributes two observables ($\DM/\rs$ and $\DHubble/\rs$); the lowest bin provides only $\DV/\rs$.\label{tab:bao_observables}}
@@ -108,20 +118,20 @@ For each chain sample, we compute distance modulus residuals: $\Delta\mu_i = \mu
 C_\mathrm{marg} = C_\mathrm{bin} + \sigma_M^2 \cdot \mathbf{1}\mathbf{1}^T
 \label{eq:mb_marg}
 \end{equation}
-with $\sigma_M = 100$, adding one enormous eigenvalue ($\approx N \sigma_M^2$) in the constant-offset direction. After whitening, this direction gets weight $\sim 1/\sqrt{N\sigma_M^2} \approx 0.002$ for $N = 22$---effectively zero. The result is stable for $\sigma_M \geq 5$.
+with $\sigma_M = 100$ (in magnitudes, vastly larger than any plausible $M_B$ uncertainty; in the $\sigma_M \to \infty$ limit this is mathematically equivalent to projecting out the constant-offset direction, but a finite value keeps the covariance well-conditioned), adding one very large eigenvalue ($\approx N \sigma_M^2$) in the constant-offset direction. After whitening, this direction gets weight $\sim 1/\sqrt{N\sigma_M^2} \approx 0.002$ for $N = 22$---effectively zero. The result is stable for $\sigma_M \geq 5$.
 
 \subsubsection{Whitening}
 
-We whiten using the eigendecomposition of the (ratio-transformed or \MB-marginalized) covariance: $\tilde{y} = C^{-1/2} y$. In the whitened space, every direction has unit measurement variance. For SN datasets, the \MB marginalization (Eq.~\ref{eq:mb_marg}) inflates one eigenvalue to $\sim N\sigma_M^2 \approx 2.2 \times 10^5$; whitening assigns that direction negligible weight, effectively marginalizing \MB without discarding the dimension. All covariances are well-conditioned after binning, so all dimensions are retained: 13 for BAO, 22 for Union3 and Pantheon+, and 19 for DES-Dovekie (whose recalibrated covariance \citep{Popovic2025} is well-conditioned).
+We whiten using the eigendecomposition of the (ratio-transformed or \MB-marginalized) covariance: $\tilde{y} = C^{-1/2} y$. Whitening puts all directions on equal footing: in $\tilde y$-space every linearly independent combination of the observables has unit measurement variance, so the subsequent SVD picks out directions of largest \emph{model} variation across the CMB posterior, not directions that happen to have large measurement errors. In the whitened space, every direction has unit measurement variance. For SN datasets, the \MB marginalization (Eq.~\ref{eq:mb_marg}) inflates one eigenvalue to $\sim N\sigma_M^2 \approx 2.2 \times 10^5$; whitening assigns that direction negligible weight, effectively marginalizing \MB without discarding the dimension. All covariances are well-conditioned after binning, so all dimensions are retained: 13 for BAO, 22 for Union3 and Pantheon+, and 19 for DES-Dovekie (whose recalibrated covariance \citep{Popovic2025} is well-conditioned).
 
 \subsubsection{SVD}
 
-The $N \times D$ matrix of whitened chain predictions ($N = 2000$ samples, $D$ the data dimension) is decomposed as $M = U S V^T$. We do \emph{not} mean-center $M$ before the SVD. For BAO, the chain mean $\langle \tilde{y} \rangle$ is generally nonzero (reflecting the offset between the reference cosmology and the chain centroid), and this offset is part of the signal we wish to decompose---mean-centering would remove a component that contributes to the tension between data and model. For SN, the \MB marginalization already suppresses the constant-offset direction (Section~\ref{sec:mb_marg}), so the distinction is immaterial. The columns of $V$ are the principal directions ordered by singular value $S_\alpha$.
+The $N \times D$ matrix of whitened chain predictions ($N = 2000$ samples, $D$ the data dimension) is decomposed as $M = U S V^T$. We do \emph{not} mean-center $M$ before the SVD. The offset of the chain centroid from the reference cosmology is itself a physical signal --- it carries the difference between the reference cosmology's predictions and what the CMB chain prefers, and discarding it could discard the very tension we are trying to measure. For BAO, $\langle \tilde y \rangle$ is therefore generically nonzero; for SN, the $M_B$ marginalization already absorbs any constant-offset direction (Section~\ref{sec:mb_marg}), so the distinction is immaterial. The columns of $V$ are the principal directions ordered by singular value $S_\alpha$.
 
-Chain coefficients: $c_\alpha^{(i)} = U_{i\alpha} S_\alpha$ gives the projection of chain sample $i$ onto mode $\alpha$. The chain mean $\langle c_\alpha \rangle$ and standard deviation $\sigma_{c_\alpha}$ over the $N$ samples characterize the CMB posterior's location and spread in direction $\alpha$.
-Data projection: $a_\alpha = (\tilde{y}_\mathrm{data}) \cdot V_\alpha$. Because the $V_\alpha$ are orthonormal and the data are whitened, each $a_\alpha$ is measured with unit variance---independent of $\alpha$.
+Chain coefficients: $c_\alpha^{(s)} = U_{s\alpha} S_\alpha$ gives the projection of chain sample $s$ onto mode $\alpha$. The chain mean $\langle c_\alpha \rangle$ and standard deviation $\sigma_{c_\alpha}$ over the $N$ samples characterize the CMB posterior's location and spread in direction $\alpha$.
+Data projection: $a_\alpha = (\tilde{y}_\mathrm{data}) \cdot V_\alpha$. Because the $V_\alpha$ are orthonormal and the data are whitened, the measurement error on $a_\alpha$ is 1 in whitened units for every $\alpha$ --- every mode carries the same measurement noise by construction.
 
-The relevant quantity is the \emph{per-sample standard deviation}:
+The relevant quantity is the \emph{standard deviation}:
 \begin{equation}
 \sigma_{c_\alpha} \equiv \mathrm{std}(c_\alpha)
 \label{eq:sigma_c}
@@ -136,12 +146,12 @@ The key point is that the SVD modes and their singular values are determined ent
 
 \subsubsection{Tension Formula}
 
-The tension between data and model in mode $\alpha$ is:
+The tension between data and model in mode $\alpha$ is defined below. The numerator measures how far the data sits from the chain mean in mode $\alpha$; the denominator combines, in quadrature, the unit measurement variance (from whitening) and the chain variance $\sigma_{c_\alpha}^2$ (the model uncertainty across the CMB posterior). Both variances are in the same whitened units.
 \begin{equation}
 \mathrm{tension}_\alpha = \frac{a_\alpha - \langle c_\alpha \rangle}{\sqrt{1 + \sigma_{c_\alpha}^2}}
 \label{eq:tension}
 \end{equation}
-where $a_\alpha$ is the data projection, $\langle c_\alpha \rangle$ is the chain mean, and $\sigma_{c_\alpha}$ is the chain standard deviation (Eq.~\ref{eq:sigma_c}). The ``1'' in the denominator is the unit measurement variance in whitened space (by construction). Thus the denominator combines two independent uncertainties: observational measurement error (always 1 in whitened units) and model uncertainty from the CMB posterior ($\sigma_{c_\alpha}^2$). This formula assumes Gaussian distributions for the $c_\alpha$ coefficients; Kolmogorov--Smirnov tests confirm that the leading-mode distributions are consistent with Gaussian for all four probes.
+where $a_\alpha$ is the data projection, $\langle c_\alpha \rangle$ is the chain mean, and $\sigma_{c_\alpha}$ is the chain standard deviation (Eq.~\ref{eq:sigma_c}). With this convention, positive tension means the data amplitude $a_\alpha$ lies above the chain mean $\langle c_\alpha \rangle$. The ``1'' in the denominator is the unit measurement variance in whitened space (by construction). Thus the denominator combines two independent uncertainties: observational measurement error (always 1 in whitened units) and model uncertainty from the CMB posterior ($\sigma_{c_\alpha}^2$). This formula assumes Gaussian distributions for the $c_\alpha$ coefficients; Kolmogorov--Smirnov tests confirm that the leading-mode distributions are consistent with Gaussian for all four probes.
 
 \subsubsection{Parameter Formulas via $\beta$-vectors}
 
@@ -158,7 +168,7 @@ where $X_p \in \{\omh, \obh, \thetastar\}$. Because both sides are standardized,
 
 When additional parameters are varied (e.g., \wowa, \Omk, $A_\mathrm{lens}$), the model predictions sweep a larger volume of observable space. The key question is whether this additional freedom opens \emph{new measurable directions} beyond \czero, or whether it merely expands the range of motion along the same direction.
 
-To search for genuinely new directions, that are a-priori reasonable given the model, we project out \czero from the whitened chain predictions and decompose the residuals:
+To search for genuinely new directions, that are a priori reasonable given the model, we project out \czero from the whitened chain predictions and decompose the residuals:
 \begin{equation}
 y_\perp = y - (y \cdot V_0)\, V_0
 \end{equation}

@@ -1,6 +1,6 @@
-% w0wa_reinterpretation.tex — §5 (was §6)
+% w0wa_reinterpretation.tex — §5
 
-\section{The \wowa Extension}
+\section{Dynamical Dark Energy}
 \label{sec:w0wa_reinterpretation}
 
 
@@ -12,21 +12,23 @@ The previous section established that within \LCDM, the only measurable directio
 \subsection{Methodology}
 \label{sec:w0wa_method}
 
-To answer this question, we extend the SVD analysis by varying dark energy parameters. We fix the matter content to the Planck \LCDM best-fit ($\omh = 0.1424$, $\obh = 0.02237$) and compute BAO and SN observables on a $100 \times 100$ grid spanning $w_0 \in [-1.5, 0]$ and $w_a \in [-3, 1.5]$. This grid maps out how each observable responds to dark energy. In doing so, we keep $\Omk = 0$ and $\thetastar$ fixed. Note that we could have varied $\omh$ and reached the same conclusions becasue we will keep the $V_0$ direction fixed to what we found in Section~\ref{sec:universal_c0}.
+To answer this question, we extend the SVD analysis by varying dark energy parameters. We fix the matter content to the Planck \LCDM best-fit ($\omh = 0.1424$, $\obh = 0.02237$) and compute BAO and SN observables on a $100 \times 100$ grid spanning $w_0 \in [-1.5, 0]$ and $w_a \in [-3, 1.5]$. This grid maps out how each observable responds to dark energy. In doing so, we keep $\Omk = 0$ and $\thetastar$ fixed. Note that we could have varied $\omh$ and reached the same conclusions because we will keep the $V_0$ direction fixed to what we found in Section~\ref{sec:universal_c0}.
 
 Crucially, we preserve the \LCDM \czero direction: we set $V_0 = V_0^\mathrm{\LCDM}$ (the \omh direction from Section~\ref{sec:universal_c0}) and project it out of the grid predictions before performing SVD on the residuals. The resulting modes form an orthonormal basis where:
 \begin{itemize}
 \item $V_0$ (= \czero): identical to the \LCDM \omh direction, unchanged.
 \item $V_1$ (= \cone): the first dark energy direction orthogonal to \omh---the direction in which ($w_0$, $w_a$) most affects the observables.
-\item $V_2, V_3, \ldots$: higher dark energy modes.
+\item $V_2, V_3, \ldots$: not additional dark-energy degrees of freedom --- \wowa has only two --- but nonlinear residuals of the $(w_0, w_a) \to$ observables map. If the distance predictions were linear in $(w_0, w_a)$, only $V_1$ would have non-trivial grid range; the presence of structure in $V_2, V_3$ measures how much the distance map curves across the grid.
 \end{itemize}
+
+We fix $V_0$ to the \LCDM result of Section~\ref{sec:universal_c0} rather than re-running the SVD freely. Without this projection, the \wowa grid's leading mode would partly re-discover \omh-like motion (because varying $(w_0, w_a)$ shifts distances in a way that overlaps strongly with shifting \omh), and we would learn nothing new about dark energy. Projecting out $V_0$ isolates the directions that \wowa freedom genuinely opens \emph{beyond} what \LCDM already populates.
 
 We then project both the low-$z$ data and the Planck+DESI \wowa chain posterior onto this basis. The Planck+DESI chain is a joint Planck~2018+DESI~DR2 analysis in flat \wowa{}CDM, produced by the DESI collaboration \citep{DESI_DR2_cosmo} (Section~\ref{sec:data}); it is the chain whose $\sim 3\sigma$ dark energy preference we aim to reinterpret.
 
 \subsection{Two Modes Become Measurable}
 \label{sec:two_modes}
 
-Adding two parameters ($w_0$, $w_a$) could open two new measurable directions, at least if we think of things linearly. But \czero absorbs one slot: the most measurable direction in the \wowa extension coincides with the \LCDM \czero (the \omh direction). This leaves \cone as the first genuinely new dark energy only direction.
+Adding two parameters ($w_0$, $w_a$) could open two new measurable directions, at least if we think of things linearly. But \czero absorbs one slot: the most measurable direction in the \wowa extension coincides with the \LCDM \czero (the \omh direction). This leaves \cone as the first genuinely new dark-energy-only direction.
 
 \claim{c0_dominant_w0wa}{Even in the \wowa extension, \czero (the \omh direction) has the largest grid range for every probe---dark energy affects distances less than \omh does.}
 To quantify measurability, we examine the \emph{grid range}---the total variation of each SVD coefficient $c_\alpha$ across the ($w_0$, $w_a$) grid, in units of measurement error. Table~\ref{tab:w0wa_ranges} summarizes the results for all probes.
@@ -47,9 +49,9 @@ DES-Dovekie & 55 & 8.3 & 2.7 & $<1$ & 0.15 \\
 
 For BAO, the \cone grid range (34) is $\sim 3\times$ smaller than \czero (104), with $c_1/c_0 = 0.33$---dark energy has substantially less leverage on \cone than on the \omh direction. The range is however much larger than one and thus we can expect to see a significant signal there if the dynamical dark energy is the correct origin of the tension. For SN, the pattern is similar: \cone range ($\sim 8$--$9$) is smaller than \czero ($\sim 45$--$55$), with $c_1/c_0 \approx 0.15$--$0.21$. The range is also larger than one. 
 
-We note that, especailly for BAO, there are two additional directions with a non-trivial range. This is a reflection of the fact that the \wowa extension cannot be thought perfectly approximated by a linear model in the space of observables.
+For BAO, two further directions ($V_2$, $V_3$) carry non-trivial grid range (Table~\ref{tab:w0wa_ranges}). With only two free parameters $(w_0, w_a)$, a linear response would populate exactly two SVD directions; the extra grid range in $V_2, V_3$ reflects nonlinearities in the $(w_0, w_a) \to$ distance map, not new degrees of freedom.
 
-This should be contrasted with the \LCDM situation, where $\sigma_{c_1} = 0.06$ (BAO) and $\approx 0.002$ (SN)---Table~\ref{tab:sigma_c}. The \wowa extension transforms \cone from noise to signal by opening the dark energy parameter space.
+This should be contrasted with the \LCDM situation, where $\sigma_{c_1} = 0.06$ (BAO) and $\approx 0.002$ (SN)---Table~\ref{tab:sigma_c}. (In \LCDM all $D$ SVD directions exist, but beyond \czero they all have $\sigma_{c_\alpha} \ll 1$ and are individually unmeasurable; they are not marginalized away but simply carry no signal, as the goodness-of-fit test in Section~\ref{sec:robustness} confirms.) In the \wowa extension the first new direction $V_1$ is measurable: its data amplitude $a_1$ --- which we will call $\cone$ --- becomes a genuine constraint on the dark-energy parameter space, no longer noise as it was in \LCDM.
 
 \subsection{\wowa Contours and Dark Energy Sensitivity}
 \label{sec:w0wa_contours}
@@ -71,7 +73,7 @@ The \cone directions for the three SN datasets are nearly proportional: $c_1^\ma
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/fig_w0wa_contours.pdf}
-\caption{SVD mode contours in the \wowa plane. Green solid: constant-\czero contours (diagonal---probes $w$ at $z \approx 0.75$). Red dashed: BAO \cone contours (diagonal---probes $w$ at $z \approx 0.5$). Blue dash-dot: SN/Union3 \cone contours (nearly vertical---probes $\sim$pure $w_0$). Gold star: \LCDM point ($w_0 = -1$, $w_a = 0$). Grid computed with fixed Planck \LCDM matter parameters. Pantheon+ and DES-Dovekie \cone contours have the same orientation as Union3, with normalization factors of $1.13$ and $1.01$ respectively (pairwise correlations $> 0.999$).}
+\caption{SVD mode contours in the \wowa plane. Green solid: constant-\czero contours (diagonal---probes $w$ at $z \approx 0.75$), spaced by $\Delta\czero = 10$. Red dashed: BAO \cone contours (diagonal---probes $w$ at $z \approx 0.5$), spaced by $\Delta c_1 = 5$. Blue dash-dot: SN/Union3 \cone contours (nearly vertical---probes $\sim$pure $w_0$), spaced by $\Delta c_1 = 1$. All spacings are in whitened (measurement-error) units, so the much tighter \czero spacing directly reflects its greater measurability (cf.\ the grid ranges in Table~\ref{tab:w0wa_ranges}). Black star: \LCDM point ($w_0 = -1$, $w_a = 0$). Grid computed with fixed Planck \LCDM matter parameters. Pantheon+ and DES-Dovekie \cone contours have the same orientation as Union3, with normalization factors of $1.13$ and $1.01$ respectively (pairwise correlations $> 0.999$).}
 \label{fig:w0wa_contours}
 \end{figure}
 
@@ -96,25 +98,26 @@ DES-Dovekie & $-0.75$ & $-0.8\sigma$ & $-3.05$ & 1.08 \\
 \tablecomments{$a_1$: data projection onto the dark energy direction $V_1$. Tension: vs.\ ACT \LCDM ($\approx a_1$ since $\sigma_{c_1}^\mathrm{\LCDM} \ll 1$). Last two columns: Planck+DESI \wowa chain prediction for each probe's \cone.}
 \end{deluxetable}
 
-\textbf{BAO \cone tension is $+1.2\sigma$, consistent with \LCDM.} The dark energy direction shows only mild tension. The dominant $+2.2\sigma$ DESI tension lives in \czero (\omh), not in the dark energy mode.
+\textbf{BAO \cone tension is $+1.2\sigma$, consistent with \LCDM.} The dark energy direction shows only mild tension. The dominant $+2.2\sigma$ DESI tension lives in \czero (\omh), not in the dark energy mode. Explicitly, BAO measures a data amplitude $a_1 = +1.24$ in the dark-energy direction, carrying unit measurement error in whitened units ($a_1 = +1.24 \pm 1.0$), against the \LCDM expectation $\langle c_1 \rangle \approx 0$ ($\sigma_{c_1}^\mathrm{\LCDM} = 0.046$); equivalently, this corresponds to $w(z = 0.46) = -0.94 \pm 0.052$ at the \cone pivot (Section~\ref{sec:pivot_analysis}).
+A 2D view of how these mode tensions map into the $(w_0, w_a)$ plane is given in Figure~\ref{fig:w0wa_chi2_investigation} (Section~\ref{sec:bao_mode_structure}), which overlays the Planck+DESI chain posterior with the SVD-truncated $\chi^2$ contours.
 
 The SN \cone tensions are all mild ($-1.5\sigma$ to $+0.2\sigma$). The Planck+DESI chain (which includes BAO but no SN) predicts $\langle c_1 \rangle \approx -3$ for SN---far from zero because the chain's preferred dark energy ($w_0 \approx -0.43$, $w_a \approx -1.69$) extrapolates to specific distance patterns at SN redshifts. All three SN datasets are displaced from this prediction, suggesting the chain's dark energy extrapolation overshoots the SN data (Figure~\ref{fig:sn_all_datasets} and Figure~\ref{fig:sn_c1_histogram}).
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/sec5_sn_all_datasets.pdf}
-\caption{Planck+DESI \wowa chain SN prediction (gray band, $\pm 1\sigma$) vs.\ all three SN datasets. Each dataset is independently shifted by its optimal display offset $M_\mathrm{disp}$ (zero $\chi^2$ cost due to $M_B$ marginalization). The inter-dataset scatter at low redshift reflects calibration differences.}
+\caption{Planck+DESI \wowa chain SN prediction (gray band, $\pm 1\sigma$) vs.\ all three SN datasets. Each dataset is independently shifted by its optimal display offset $M_\mathrm{disp}$ (zero $\chi^2$ cost due to $M_B$ marginalization).}
 \label{fig:sn_all_datasets}
 \end{figure}
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/sec5_sn_c1_histogram.pdf}
-\caption{SN \cone (dark energy mode). Gray histogram: Planck+DESI \wowa chain prediction ($\langle c_1 \rangle \approx -3$). Dashed Gaussians: data measurements $a_1$ from each SN dataset (unit measurement uncertainty). All datasets are rescaled to the Union3 \cone basis (proportionality factors: $c_1^\mathrm{P+} \approx 1.13\, c_1^\mathrm{U3}$, $c_1^\mathrm{DES} \approx 1.01\, c_1^\mathrm{U3}$). All three cluster near $a_1 \approx 0$, collectively displaced from the chain.}
+\caption{SN \cone (dark energy mode). Gray histogram: Planck+DESI \wowa chain prediction ($\langle c_1 \rangle \approx -3$). Dashed Gaussians: data measurements $a_1$ from each SN dataset (unit measurement uncertainty). All datasets are rescaled to the Union3 \cone basis (proportionality factors: $c_1^\mathrm{P+} \approx 1.13\, c_1^\mathrm{U3}$, $c_1^\mathrm{DES} \approx 1.01\, c_1^\mathrm{U3}$). All three lie much closer to $a_1 = 0$ than to the chain prediction, collectively displaced from it.}
 \label{fig:sn_c1_histogram}
 \end{figure}
 
-\subsection{BAO Mode Structure: Four Modes, Not Two}
+\subsection{BAO Mode Structure: Where the Chain Lives}
 \label{sec:bao_mode_structure}
 
 \claim{freed_calpha_pattern}{When $c_\alpha$ are freed from the \wowa constraint, BAO data measures $c_0$, $c_2$, $c_3$ but not $c_1$: the dark energy direction carries no information.}
@@ -133,9 +136,11 @@ $\sigma_{c_\alpha}$ (chain) & $0.92$ & $0.89$ & $0.68$ & $0.15$ & $0.03$ & $0.01
 \enddata
 \end{deluxetable}
 
-The data projections $a_1 \approx a_2 \approx a_3 \approx 1.3$---all comparable, with no single mode dominating the departure from \LCDM. Yet the chain enters primarily through $c_2$ ($\langle c_2 \rangle = +2.00$), not $c_1$ ($\langle c_1 \rangle = +0.71$). At the chain's preferred dark energy ($w_0 \approx -0.43$, $w_a \approx -1.69$), the equation of state crosses $w = -1$ at $z \approx 0.5$. This rapid, low-redshift feature projects onto $V_2$ (finer redshift structure) rather than $V_1$ (broad DE variation).
+The data amplitudes $a_1 \approx a_2 \approx a_3 \approx 1.3$ are all comparable, so no single mode dominates the data's departure from \LCDM. The Planck+DESI \wowa chain, however, is \emph{centered} far from \LCDM in $c_2$ ($\langle c_2 \rangle = +2.00$) more than in $c_1$ ($\langle c_1 \rangle = +0.71$). Higher vectors are used primarily to try to accommodate the high $\DM/\DHubble$ ratio of the lowest-redshift point; Figure~\ref{fig:bao_data_bands} shows how the characteristic $\DV$ dip at $z \sim 0.5$--$1.0$ emerges only once $c_2$ and $c_3$ are included.
 
 Figure~\ref{fig:w0wa_chi2_investigation} validates this decomposition. Panel~(A) shows that a 2-mode ($c_0$, $c_1$) truncated $\chi^2$ does not reproduce the chain posterior contours---two modes are insufficient. Panel~(B) shows that the 4-mode truncation closely matches the chain, demonstrating that four modes capture the BAO information content. The cumulative $\Delta\chi^2$ values are $-22.0$ ($c_0$), $-23.6$ ($c_0{+}c_1$), $-25.3$ ($c_0{+}c_1{+}c_2$), $-27.0$ ($c_0{+}\ldots{+}c_3$).
+
+Combining the $+2.2\sigma$ BAO tension in \czero (the \omh direction, Section~\ref{sec:c0_tensions}) with the $+1.2\sigma$ BAO tension in \cone (the dark-energy direction) --- and noting that by construction $V_0$ is the \omh combination while $V_1$ is the dark-energy combination orthogonal to it --- the BAO preference for \wowa over \LCDM is driven by the matter direction, not the dark-energy direction.
 
 \begin{figure*}[t]
 \centering
@@ -148,7 +153,7 @@ Figure~\ref{fig:w0wa_chi2_investigation} validates this decomposition. Panel~(A)
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/fig_w0wa_chi2_investigation.pdf}
-\caption{SVD $\chi^2$ analysis in the $(w_0, w_a)$ plane vs.\ the Planck+DESI chain posterior. \emph{(A)}~2-mode SVD (blue) does not match chain (red). \emph{(B)}~4-mode SVD closely matches. \emph{(C)}~$c_2$ colormap: the chain occupies a region of large $|c_2|$. \emph{(D)}~$c_3$ colormap: the chain's $c_3$ is consistent with the data. }
+\caption{SVD $\chi^2$ analysis in the $(w_0, w_a)$ plane vs.\ the Planck+DESI chain posterior. \emph{(A)}~2-mode SVD (blue) does not match chain (red). \emph{(B)}~4-mode SVD closely matches. \emph{(C)}~$c_2$ colormap: the chain occupies a region of large $|c_2|$. \emph{(D)}~$c_3$ colormap: the chain's $c_3$ is consistent with the data. The point: four SVD modes reproduce the chain posterior, and the chain's displacement from \LCDM is carried by \czero and $c_2$, not by the dark-energy mode \cone.}
 \label{fig:w0wa_chi2_investigation}
 \end{figure*}
 
@@ -171,16 +176,16 @@ c_1 &\approx +19.1\,(1 + w_0) + 6.0\, w_a \quad (z_p = 0.46,\; R^2 = 1.00) \labe
 \claim{three_mode_ladder}{At the BAO \cone pivot ($z = 0.46$), $w = -0.94 \pm 0.052$ ($+1.2\sigma$): consistent with a cosmological constant. The apparent $w \neq -1$ at the \czero pivot ($z = 0.74$) is \omh tension dressed in dark energy clothing.}
 \depends{three_mode_ladder}{w0wa_is_c0}
 
-Figure~\ref{fig:wp_histograms} shows $w(z_\mathrm{pivot})$ from both the Planck+DESI chain (colored histograms) and the data projections (black dashed Gaussians). At the \czero pivot ($z = 0.74$), both chain and data show $w \approx -1.2$, deviating from \LCDM---but this is the \omh direction, not the independant dark energy direction. At the BAO \cone pivot ($z = 0.46$), $w$ is consistent with $-1$ from both chain and data.
+Figure~\ref{fig:wp_histograms} shows $w(z_\mathrm{pivot})$ from both the Planck+DESI chain (colored histograms) and the data projections (black dashed Gaussians). At the \czero pivot ($z = 0.74$), both chain and data show $w \approx -1.2$, deviating from \LCDM---but this is the \omh direction, not the independent dark energy direction. At the BAO \cone pivot ($z = 0.46$), $w$ is consistent with $-1$ from both chain and data.
 
-We note that the constraint inferred from \cone is tigher than the constraint inferred from \czero. This is because the \cone direction is more is not devenerate with \omh. Thus when one combines the two constraints, the tension is reduced, bothe becasue the \cone constriant sits on the physical side of the phantom divide and also becasue it is narrower. 
+At the \cone pivot ($z = 0.46$) the constraint $w = -0.94 \pm 0.052$ is tighter than the constraint inferred at the \czero pivot ($z = 0.74$). This is because \cone is, by construction, the dark-energy direction orthogonal to \omh, so its measurement does not get inflated by the \omh marginalization. Combining the two pulls the joint constraint on $w(z)$ closer to $-1$: \cone is consistent with $-1$ at the few per-cent level \emph{and} has a smaller error than \czero.
 
-\begin{figure}[t]
+\begin{figure*}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures/fig_wp_histograms.pdf}
-\caption{$w(z_\mathrm{pivot})$ distributions. Colored histograms: Planck+DESI \wowa chain. Black dashed: data measurement from $c_\alpha$ projection (Gaussian with $\sigma_w = 1/|a_\alpha|$; for \czero, $\sigma$ includes \omh marginalization). \emph{Left:} \czero pivot ($z = 0.74$)---$w \neq -1$ but driven by \omh. \emph{Center:} BAO \cone pivot ($z = 0.46$)---consistent with \LCDM. \emph{Right:} SN \cone pivot ($z \approx 0$)---the chain predicts $w \approx -0.3$ but SN data gives $w \approx -1.3$, showing the chain's DE extrapolation overshoots.}
+\includegraphics[width=\textwidth]{figures/fig_wp_histograms.pdf}
+\caption{$w(z_\mathrm{pivot})$ distributions. Colored histograms: Planck+DESI \wowa chain. Black dashed: data measurement from $c_\alpha$ projection (Gaussian with $\sigma_w = 1/|a_\alpha|$; for \czero, $\sigma$ includes \omh marginalization). \emph{Left:} \czero pivot ($z = 0.74$)---$w \neq -1$, but this is the \czero direction, which is affected by \omh. \emph{Center:} BAO \cone pivot ($z = 0.46$)---consistent with \LCDM. \emph{Right:} SN \cone pivot ($z \approx 0$)---the chain predicts $w \approx -0.3$ but SN data gives $w \approx -1.3$, showing the chain's DE extrapolation overshoots.}
 \label{fig:wp_histograms}
-\end{figure}
+\end{figure*}
 
 \subsection{Summary}
 
@@ -188,11 +193,11 @@ The \wowa analysis reveals a clean separation:
 \begin{enumerate}
 \item \textbf{\czero (universal):} The \omh tension persists unchanged, appearing as $w \neq -1$ at $z \approx 0.7$.
 \item \textbf{BAO \cone:} Mild ($+1.2\sigma$). At the DE pivot $z = 0.46$, $w = -0.94 \pm 0.052$---consistent with a cosmological constant.
-\item \textbf{BAO higher modes:} The chain enters primarily through $c_2$ (Table~\ref{tab:bao_calpha_data}), encoding rapid low-$z$ DE variation rather than the primary DE direction $V_1$.
+\item \textbf{BAO higher modes:} The Planck+DESI chain's preferred $w(z)$ has a sharp low-redshift feature that the broad, smooth leading dark-energy mode $V_1$ cannot represent.  This is why the chain sits far from \LCDM in $c_2$ ($\langle c_2 \rangle = +2.0$) but barely in $c_1$, even though $V_1$ is a priori the more measurable dark-energy direction (see Section~\ref{sec:bao_mode_structure}).
 \item \textbf{SN \cone:} Mild ($-1.5\sigma$ to $+0.2\sigma$). The Planck+DESI chain overshoots the SN data.
 \end{enumerate}
 
-The DESI \wowa ``detection'' is \czero tension repackaged. The actual genuinely new dark energy direction is consistent with a cosmological constant and there was plenty of points in the parameter space where the data would have preferred a different value. 
+The DESI \wowa ``detection'' is \czero tension repackaged. The actual genuinely new dark energy direction is consistent with a cosmological constant and the $(w_0, w_a)$ grid contains many directions in which a real dynamical-dark-energy signal would have produced a measurable \cone tension. None is observed.
 
 \dataref{ev_pivot_analysis}{calculation/scripts/compute\_paper\_numbers.py}
 \dataref{ev_data_projections}{calculation/scripts/section5\_figures.py}

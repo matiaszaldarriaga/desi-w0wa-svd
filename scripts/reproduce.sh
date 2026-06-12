@@ -46,7 +46,7 @@ echo " Verification"
 echo "========================================"
 
 FIGS="$ROOT_DIR/paper/figures"
-EXPECTED=18
+EXPECTED=17
 
 # Count PDFs
 N_PDF=$(find "$FIGS" -name "*.pdf" -type f 2>/dev/null | wc -l | tr -d ' ')
@@ -76,7 +76,7 @@ else
         sec5_bao_data_bands_dv.pdf sec5_bao_data_bands_dmdh.pdf \
         fig_w0wa_chi2_investigation.pdf fig_wp_histograms.pdf \
         fig_omk_gaussians.pdf fig_ext_c0_dists.pdf \
-        fig_app_derivatives.pdf fig_app_beta_prediction.pdf; do
+        fig_app_derivatives.pdf; do
         if [ ! -f "$FIGS/$fig" ]; then
             echo "  MISSING: $fig"
         fi

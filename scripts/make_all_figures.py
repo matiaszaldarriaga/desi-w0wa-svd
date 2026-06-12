@@ -649,9 +649,11 @@ def _(np, plt, D, SINGLE, u, cosmo_omkw0wa, cosmo_solve_H0_omkw0wa):
         z = np.geomspace(0.01, 1100, 500)
         H_ref = ref_cosmo.H(z).value
 
-        # omega_m h^2 values to plot
-        ACT_OMH2 = float(D["act"]["omh2"].mean())
-        ACT_SIGMA = float(D["act"]["omh2"].std())
+        # omega_m h^2 values to plot (match the Planck reference omega_m h^2 used
+        # for the H_ref normalization, so the central curve is the reference; the
+        # BAO-implied curve at -3 sigma reproduces the value quoted in the caption).
+        ACT_OMH2 = 0.1424    # ACT chain mean / Planck reference omega_m h^2
+        ACT_SIGMA = 0.0011    # ACT chain sigma
 
         omh2_values = [
             (ACT_OMH2 - 3.0 * ACT_SIGMA, "BAO-implied", "#d62728", "-", 2.0),
@@ -679,7 +681,7 @@ def _(np, plt, D, SINGLE, u, cosmo_omkw0wa, cosmo_solve_H0_omkw0wa):
 
             results.append((z, H_ratio, label, color, ls, lw, omh2, H0_solved))
 
-        fig, ax = plt.subplots(figsize=(7, 4.5))
+        fig, ax = plt.subplots(figsize=(7.1, 3.2))
 
         for z_arr, H_ratio, label, color, ls, lw, omh2, H0 in results:
             ax.plot(z_arr, H_ratio, color=color, ls=ls, lw=lw,
@@ -694,8 +696,6 @@ def _(np, plt, D, SINGLE, u, cosmo_omkw0wa, cosmo_solve_H0_omkw0wa):
         ax.set_xscale("log")
         ax.set_xlabel("Redshift $z$")
         ax.set_ylabel(r"$H(z)\,/\,H_\mathrm{ref}(z)$")
-        ax.set_title(r"Hubble rate ratio for varying $\omega_m \equiv \Omega_m h^2$"
-                     "\n" r"(fixed $\theta_\star$, flat $\Lambda$CDM)")
         ax.set_xlim(0.01, 1500)
         ax.legend(loc="upper right", framealpha=0.9, fontsize=7)
         ax.grid(True, alpha=0.2)
@@ -755,7 +755,7 @@ def _(np, plt, D, DOUBLE):
         c1_bao_map = c1_bao_map[::step, ::step]
         c1_u3_map = c1_u3_map[::step, ::step]
 
-        levels_c0 = list(range(-30, 51, 10))
+        levels_c0 = list(range(-40, 41, 10))
         levels_c1b = list(range(-60, 61, 5))
         levels_c1u = list(range(-3, 4))
 
@@ -767,11 +767,37 @@ def _(np, plt, D, DOUBLE):
             'c1_u3': '#1f77b4',
         }
 
+        # Deterministic label anchors for the c0 (green) contours: one label per
+        # level where the contour crosses a rail line ~perpendicular to the (steep)
+        # green contours, away from the upper-left legend (auto-placement otherwise
+        # hid the green labels under the legend).
+        from scipy.interpolate import RegularGridInterpolator
+
+        def _rail_label_points(cmap, levels, slope, intercept,
+                               w0_lo=-1.48, w0_hi=-0.42, wa_lo=-1.95, wa_hi=0.95):
+            interp = RegularGridInterpolator((w0_vals, wa_vals), cmap,
+                                             bounds_error=False, fill_value=np.nan)
+            w0r = np.linspace(w0_lo, w0_hi, 600)
+            war = slope * w0r + intercept
+            m = (war >= wa_lo) & (war <= wa_hi)
+            w0r, war = w0r[m], war[m]
+            cr = interp(np.column_stack([w0r, war]))
+            pts = []
+            for L in levels:
+                d = cr - L
+                ok = np.isfinite(d)
+                sc = np.where(ok[:-1] & ok[1:] & (np.sign(d[:-1]) != np.sign(d[1:])))[0]
+                if len(sc):
+                    i0 = sc[len(sc) // 2]
+                    pts.append((float(w0r[i0]), float(war[i0])))
+            return pts
+
         cs0 = ax.contour(W0, WA, c0_bao_map,
                           levels=levels_c0,
                           colors=[mode_colors['c0']], linestyles=['-'],
                           linewidths=1.5, alpha=0.8)
-        ax.clabel(cs0, inline=True, fontsize=5, fmt='%.0f')
+        _man_c0 = _rail_label_points(c0_bao_map, levels_c0, slope=2.42, intercept=1.69)
+        ax.clabel(cs0, inline=True, fontsize=8, fmt='%.0f', manual=_man_c0)
         ax.plot([], [], color=mode_colors['c0'], ls='-', lw=2,
                 label=r'$c_0$ (universal)')
 
@@ -779,7 +805,7 @@ def _(np, plt, D, DOUBLE):
                            levels=levels_c1b,
                            colors=[mode_colors['c1_bao']], linestyles=['--'],
                            linewidths=1.5, alpha=0.8)
-        ax.clabel(cs1b, inline=True, fontsize=5, fmt='%.0f')
+        ax.clabel(cs1b, inline=True, fontsize=8, fmt='%.0f')
         ax.plot([], [], color=mode_colors['c1_bao'], ls='--', lw=2,
                 label=r'BAO $c_1$(w0wa)')
 
@@ -787,7 +813,7 @@ def _(np, plt, D, DOUBLE):
                            levels=levels_c1u,
                            colors=[mode_colors['c1_u3']], linestyles=['-.'],
                            linewidths=1.5, alpha=0.8)
-        ax.clabel(cs1u, inline=True, fontsize=5, fmt='%.0f')
+        ax.clabel(cs1u, inline=True, fontsize=8, fmt='%.0f')
         ax.plot([], [], color=mode_colors['c1_u3'], ls='-.', lw=2,
                 label=r'SN $c_1$(w0wa, Union3)')
 
@@ -906,7 +932,7 @@ def _(np, plt, D, DOUBLE):
             full_m = np.mean(dv_full if obs_type == "DV" else dmdh_full, axis=0)
             full_s = np.std(dv_full if obs_type == "DV" else dmdh_full, axis=0)
 
-            fig, ax = plt.subplots(1, 1, figsize=(5.5, 3.5))
+            fig, ax = plt.subplots(1, 1, figsize=(3.5, 2.6))
 
             ax.fill_between(z_fine, full_m - full_s, full_m + full_s,
                             color="gray", alpha=0.15, label="Full $w_0w_a$ chain")
@@ -935,9 +961,7 @@ def _(np, plt, D, DOUBLE):
             ax.set_xlim(0.1, 2.8)
             ax.set_xlabel("$z$")
             ax.set_ylabel(ylabel)
-            obs_name = "$D_V/r_s$" if obs_type == "DV" else "$D_M/D_H$"
-            ax.set_title(f"BAO {obs_name}: data-centered reconstruction", fontsize=10)
-            ax.legend(fontsize=6.5, loc="best")
+            ax.legend(fontsize=7, loc="best")
             ax.grid(True, alpha=0.2)
             fig.tight_layout()
             figs[fname] = fig
@@ -1164,7 +1188,7 @@ def _(np, plt, D):
         w_inv_des = np.where(des["err"] > 1e-10, 1.0 / des["err"]**2, 0.0)
         M_band = np.sum((des["d"] - de_at_des) * w_inv_des) / np.sum(w_inv_des)
 
-        fig, ax = plt.subplots(1, 1, figsize=(5.5, 3.8))
+        fig, ax = plt.subplots(1, 1, figsize=(3.4, 2.6))
 
         band_center = de_signal + M_band
         ax.fill_between(z_fine_sn, band_center - w0wa_fine_std,
@@ -1184,7 +1208,6 @@ def _(np, plt, D):
         ax.set_xscale("log")
         ax.set_xlabel("$z$")
         ax.set_ylabel(r"$\Delta\mu$ (mag)")
-        ax.set_title(r"$w_0w_a$ chain prediction vs. SN data", fontsize=10)
         ax.legend(fontsize=7, loc="best")
         ax.grid(True, alpha=0.2)
         fig.tight_layout()
@@ -1211,7 +1234,7 @@ def _(np, plt, D):
             "DES-Dovekie": float(D["sec5_a1_d5"]),
         }
 
-        fig, ax = plt.subplots(1, 1, figsize=(5.5, 3.5))
+        fig, ax = plt.subplots(1, 1, figsize=(3.4, 2.5))
 
         ax.hist(c1_chain, bins=50, density=True, alpha=0.4, color="gray",
                 label=f"$w_0w_a$ chain ($\\langle c_1 \\rangle$={np.mean(c1_chain):+.1f})")
@@ -1229,8 +1252,7 @@ def _(np, plt, D):
         ax.axvline(0, color="gray", ls="--", lw=0.8, alpha=0.5, label=r"$\Lambda$CDM")
         ax.set_xlabel("$c_1$ (Union3 basis)")
         ax.set_ylabel("Density")
-        ax.set_title("SN $c_1$: chain prediction vs. data (Union3 basis)", fontsize=10)
-        ax.legend(fontsize=6.5, loc="upper right")
+        ax.legend(fontsize=7, loc="upper right")
         ax.set_xlim(-8, 8)
         ax.grid(True, alpha=0.2)
         fig.tight_layout()
@@ -1415,7 +1437,7 @@ def _(np, plt, D, DOUBLE):
             vals_DrD = D[f"app_scan_{pkey}_DrD"]
             ax2.plot(xsig, vals_DrD / fid_DrD, color=color, ls=ls, lw=1.5, label=label)
 
-        for ax, title in [(ax1, r"$D(0.5)/r_d$"), (ax2, r"$D(0.3)/D(0.5)$")]:
+        for ax, title in [(ax1, r"$D_M(0.5)/r_d$"), (ax2, r"$D_M(0.3)/D_M(0.5)$")]:
             ax.axhline(1, color="gray", lw=0.4, ls="--")
             ax.axvline(0, color="gray", lw=0.4, ls="--")
             ax.set_xlabel(r"$\delta p \,/\, \sigma_p$", fontsize=9)
@@ -1473,8 +1495,8 @@ def _(np, plt, D, SINGLE):
         xx = np.arange(3)
         w = 0.22
         ax.bar(xx - w, chain_bos, w, label="Chain", color="#1f77b4", alpha=0.85)
-        ax.bar(xx, bos_bao, w, label=r"$D(0.5)/r_d$", color="#ff7f0e", alpha=0.85)
-        ax.bar(xx + w, bos_sn, w, label=r"$D(0.3)/D(0.5)$", color="#2ca02c", alpha=0.85)
+        ax.bar(xx, bos_bao, w, label=r"$D_M(0.5)/r_d$", color="#ff7f0e", alpha=0.85)
+        ax.bar(xx + w, bos_sn, w, label=r"$D_M(0.3)/D_M(0.5)$", color="#2ca02c", alpha=0.85)
 
         ax.set_xticks(xx)
         ax.set_xticklabels([r"$\omega_m$", r"$\omega_b$", r"$\theta_\star$"])
@@ -1527,9 +1549,9 @@ def _(
         # Section 6: Extensions and curvature
         "fig_ext_c0_dists": fig_ext_c0_dists,
         "fig_omk_gaussians": fig_omk_gaussians,
-        # Appendix C
+        # Appendix A
         "fig_app_derivatives": fig_app_derivatives,
-        "fig_app_beta_prediction": fig_app_beta_prediction,
+        # fig_app_beta_prediction: dropped from paper (not referenced)
     }
 
     for _name, _f in _figs.items():

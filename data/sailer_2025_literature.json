@@ -1,0 +1,71 @@
+{
+  "source": "Sailer, Farren, Ferraro, White 2025 (arXiv:2504.16932; PRL 136, 081002)",
+  "tau_lambda_cdm": {
+    "mean": 0.09,
+    "sigma": 0.012,
+    "where": "Sailer+25 Eq. 2 (high-l CMB + CMB lensing + DESI DR2 BAO within LCDM, low-l polarization removed)"
+  },
+  "tau_lambda_cdm_with_nu": {
+    "mean": 0.095,
+    "sigma": 0.014,
+    "where": "Sailer+25 Eq. 2 (same as above but with sum m_nu >= 0.06 eV prior)"
+  },
+  "tau_planck_low_l_pr3": {
+    "mean": 0.0544,
+    "sigma": 0.0073,
+    "where": "Planck 2018 / Aghanim+20 (PR3)"
+  },
+  "tau_planck_pr4_camspec": {
+    "mean": 0.0533,
+    "sigma": 0.0074,
+    "where": "Rosenberg, Gratton, Efstathiou 2022 (PR4 CamSpec)"
+  },
+  "tau_planck_pr4_hillipop": {
+    "mean": 0.0566,
+    "sigma": 0.0058,
+    "where": "Tristram+24 PR4"
+  },
+  "tau_pagano_npipe": {
+    "mean": 0.0566,
+    "sigma": 0.0058,
+    "where": "Pagano+20 NPIPE; quoted here as source of sigma_tau ~ 0.006 used in our back-of-envelope"
+  },
+  "omegam_tau_slope": {
+    "intercept": 0.349,
+    "slope": -0.505,
+    "where": "Sailer+25 Fig. 1 (left panel, dashed line); empirical Omega_m(tau) degeneracy in CMB+lensing fits"
+  },
+  "delta_Omegam_tau_054_to_090": {
+    "value": -0.018,
+    "derivation": "(-0.505) * (0.090 - 0.054)",
+    "use": "quoted in extensions.tex paragraph after line 30"
+  },
+  "w0wa_pref_tau_006": {
+    "sigma": 2.8,
+    "delta_chi2_map": -10.75,
+    "where": "Sailer+25 Evolving dark energy section, tau = 0.06 prior"
+  },
+  "w0wa_pref_tau_009": {
+    "sigma": 1.4,
+    "delta_chi2_map": -3.82,
+    "where": "Sailer+25 Evolving dark energy section, tau = 0.09 prior"
+  },
+  "lensing_constraint_back_of_envelope": {
+    "source": "Notes file output/CMB_LENSING_OMEGAM_CONSTRAINT.md",
+    "As_lensing_combination_precision_planck2015": 0.03,
+    "As_lensing_combination_precision_act_dr6": 0.02,
+    "As_e_minus_2tau_precision": 0.003,
+    "sigma_tau_assumed": 0.006,
+    "sigma_lnAs": 0.0124,
+    "thetastar_omegamh3_precision": 0.003,
+    "sigma_lnomega_m_from_lensing_planck2015": [
+      0.017,
+      0.019
+    ],
+    "sigma_lnomega_m_from_lensing_act_dr6": [
+      0.012,
+      0.013
+    ],
+    "sigma_lnomega_m_primary": 0.008
+  }
+}

@@ -26,7 +26,10 @@
 \newcommand{\wzero}{\ensuremath{w_0}\xspace}
 \newcommand{\wa}{\ensuremath{w_a}\xspace}
 \newcommand{\Omk}{\ensuremath{\Omega_k}\xspace}
-\newcommand{\rs}{\ensuremath{r_s}\xspace}
+% BAO distances are calibrated by the sound horizon at the baryon DRAG epoch r_d
+% (not the last-scattering value r_star). The macro is named \rs for historical
+% reasons but renders r_d; see the definition in data_and_method.tex (sec:data).
+\newcommand{\rs}{\ensuremath{r_d}\xspace}
 \newcommand{\DV}{\ensuremath{D_V}\xspace}
 \newcommand{\DM}{\ensuremath{D_M}\xspace}
 \newcommand{\DHubble}{\ensuremath{D_H}\xspace}
@@ -44,8 +47,7 @@
 
 
 \begin{abstract}
-All low-redshift distance probes---DESI BAO and three Type~Ia supernova compilations---measure the same leading SVD mode \czero, which is a near-perfect proxy for \omh in the LCDM chains ($R^2 > 0.99$). BAO constrains this parameter, which we loosely call \omh more tightly than the CMB itself while SN datasets do not.
-In all extensions of LCDM considered here, the leading measurable direction still coincides with this one and it is the place where most of the tensions reside. In the \wowa extension, a second mode \cone becomes measurable which provides an independent test of the dynamical dark energy hypothesis, but the BAO \cone tension with \LCDM is only $+1.2\sigma$---the new dark energy direction shows mild tension. The DESI \wowa preference is dominated by \czero. BAO alone shows a $+2.2\sigma$ preference for lower \omh; all three SN datasets are mild or null ($-0.8$ to $-1.7\sigma$, preferring higher \omh). The only other beyond-\LCDM extension that opens a genuinely new measurable direction is spatial curvature, although only barely and only for the BAO: both \czero and \cone independently point to positive spatial curvature. But the \cone error is very large. All other extensions we considered only change the predicted distribution of \czero and provide no independent measurable quantity to constrain them or tell them apart, in some cases the tension is reduced. The absence of SN confirmation or the detection of a deviation in the \cone direction, leads creadance to the hypothesis that the tension originates in the CMB--BAO calibration rather than in new low-redshift physics.
+We use an SVD decomposition of the low-redshift distance measurements from DESI BAO and three Type~Ia supernova compilations to identify the leading linear directions probed by the data and to localize the tension with the \LCDM CMB-anchored predictions. The leading direction $V_0$ — whose data amplitude we denote \czero — is, to high accuracy, a measurement of \omh: the projection of the data on $V_0$ probes essentially this one CMB-derived parameter combination. BAO constrains this parameter more tightly than the CMB itself; the three SN compilations do not. In every extension of \LCDM we consider, the leading measurable direction remains $V_0$, and it is where most of the tension with the CMB resides. In the \wowa extension a second direction $V_1$ becomes measurable and provides an independent test of dynamical dark energy; the data show no significant tension in this direction. The only other beyond-\LCDM extension that opens a genuinely new measurable direction is spatial curvature, and only marginally and only for BAO; both measurable directions then independently prefer positive spatial curvature, though the second direction is poorly constrained.
 \end{abstract}
 
 \keywords{cosmology: observations --- dark energy --- methods: statistical --- large-scale structure of Universe}
@@ -60,11 +62,10 @@ In all extensions of LCDM considered here, the leading measurable direction stil
 \input{sections/extensions}
 \input{sections/conclusions}
 
-\clearpage
 % --- Acknowledgments ---
 \section*{Acknowledgments}
 This work was done entirely using Claude Code. MZ acknowledges support from the National Science Foundation NSF-BSF
-2207583 and NSF 2209991, the Nelson Center for Collaborative Research and the  Simons Foundation through the Black Holes and Strong Gravity program.
+2207583 and NSF 2209991, the Nelson Center for Collaborative Research and the  Simons Foundation through the Black Holes and Strong Gravity program through Award No. SFI-MPS-BH-00012593-10. 
 
 % --- Appendices ---
 \appendix

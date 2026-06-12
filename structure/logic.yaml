@@ -85,7 +85,7 @@ sections:
     label: "§5"
     establishes: >
       In the w0wa extension, a second mode c1 becomes measurable (the dark
-      energy direction). But BAO c1 tension is only +1.3 sigma: the dark energy
+      energy direction). But BAO c1 tension is only +1.2 sigma: the dark energy
       direction is consistent with LCDM. The w0wa preference is c0 repackaged.
       At the BAO pivot z=0.46, w = -0.94 +/- 0.052 (consistent with -1).
       When c_alpha are freed, higher modes (c2, c3) are measurable but c1 is not.
@@ -121,13 +121,21 @@ sections:
       CMB-side extensions (A_lens, B_PMF, EDE) do not open new measurable
       directions. A_lens reduces BAO c0 tension from 2.2 to 1.1 sigma by
       broadening the CMB posterior, suggesting the tension has a lensing component.
+      The A_lens result connects to Sailer+25 (arXiv:2504.16932):
+      A_s exp(-2tau) controls the CMB lensing amplitude, so A_lens and tau
+      are degenerate. Sailer+25 show that within LambdaCDM the
+      CMB+lensing+BAO data prefer tau = 0.090 +/- 0.012, a ~3-5 sigma shift
+      from Planck low-l. Both channels reduce the apparent w0wa preference
+      by a factor of ~2. A Planck tau systematic would be a single-point
+      failure for every CMB-based cosmological analysis.
     requires: [c0_tensions]
-    claims: [alens_dilutes]
+    claims: [alens_dilutes, tau_single_point_failure]
     role: supporting_evidence
     figures: [fig:ext_c0_dists]
     reader_should_understand:
       - Why most extensions fail the sigma_res criterion
       - Why A_lens matters (tells us tension may be CMB-side)
+      - The A_lens / tau degeneracy and the Sailer+25 single-point-failure framing
 
   - id: conclusions
     file: sections/conclusions.tex
@@ -136,6 +144,9 @@ sections:
       All current low-redshift distance data are effectively one-dimensional
       in cosmological information. That single dimension is Omega_m h^2.
       The w0wa detection is c0. No extension is distinguishable by low-z data alone.
+      Separately: the lowest-redshift BAO point (high D_M/D_H) is unusually influential
+      --- fitting it drives the higher SVD modes (c2, c3) and, in a dark-energy fit,
+      a rapid w(z) --- making improvement of this point a key target for the next DESI release.
     requires: [w0wa_reinterpretation, curvature, extensions]
     claims: []
     role: synthesis
@@ -151,7 +162,7 @@ sections:
     requires: [universal_c0]
     claims: []
     role: derivation
-    figures: [fig:app_derivatives, fig:app_beta_prediction]
+    figures: [fig:app_derivatives]
 
 # How this paper connects to the broader research landscape
 knowledge_tree:

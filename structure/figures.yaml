@@ -1,8 +1,9 @@
 # figures.yaml — Figure registry for the DESI-w0wa paper
 # Maps each figure to its LaTeX label, PDF file, source, and claims.
-# Last synced: 2026-03-26
+# Last synced: 2026-06-12
 #
-# 18 figures currently referenced by \includegraphics in the paper.
+# 16 figures referenced by \includegraphics in the paper
+# (17 PDF files: fig:bao_data_bands is a two-panel figure, dv + dmdh).
 
 figures:
   # ── §2 Data and Method ──
@@ -152,10 +153,6 @@ figures:
     supports_claims: [c0_is_omegamh2]
     status: active
 
-  - label: fig:app_beta_prediction
-    file: paper/figures/fig_app_beta_prediction.pdf
-    source: code/figures/make_all_figures.py
-    source_cell: fig_app_beta_prediction
-    section: "Appendix A"
-    supports_claims: [c0_is_omegamh2]
-    status: active
+  # fig:app_beta_prediction REMOVED 2026-06-08 (review item B-ap-6): the 6-number
+  # bar plot duplicated Table~\ref{tab:beta_comparison} and was deleted from the paper.
+  # The marimo cell `fig_app_beta_prediction` still exists but its output is no longer \included.

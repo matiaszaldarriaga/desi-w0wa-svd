@@ -5,6 +5,12 @@
     "n_drawn": 2000,
     "seed": 42
   },
+  "section211_ratio_scatter": {
+    "frac_scatter_theta_star_pct": 0.025,
+    "frac_scatter_DM_over_rd_pct": 0.032,
+    "frac_scatter_DV_over_rd_pct": 0.061,
+    "z_star_mean": 1089.7
+  },
   "reference_cosmology": {
     "H0": 67.36,
     "ombh2": 0.02237,
@@ -118,10 +124,10 @@
       "tension": 2.2
     },
     "BAO_Planck": {
-      "c0_mean": -0.31,
-      "sigma_c0": 1.85,
+      "c0_mean": -0.22,
+      "sigma_c0": 1.36,
       "a0": 4.69,
-      "tension": 2.4
+      "tension": 2.9
     },
     "Union3_ACT": {
       "c0_mean": 0.13,
@@ -436,33 +442,33 @@
   },
   "table13_new_directions": {
     "Alens_BAO": {
-      "sigma_res": 0.08,
+      "sigma_res": 0.07,
       "measurable": false,
       "r": null,
       "tension": null
     },
     "B_PMF_BAO": {
-      "sigma_res": 0.17,
+      "sigma_res": 0.16,
       "measurable": false,
       "r": null,
       "tension": null
     },
     "EDE_n2_BAO": {
-      "sigma_res": 0.24,
+      "sigma_res": 0.14,
       "measurable": false,
       "r": null,
       "tension": null
     },
     "Omk_Union3": {
-      "sigma_res": 0.077,
+      "sigma_res": 0.049,
       "measurable": false
     },
     "Omk_Pantheon+": {
-      "sigma_res": 0.083,
+      "sigma_res": 0.053,
       "measurable": false
     },
     "Omk_DES-Dovekie": {
-      "sigma_res": 0.072,
+      "sigma_res": 0.046,
       "measurable": false
     }
   },
@@ -481,7 +487,7 @@
       "r": 0.993
     },
     "geometric_degeneracy_r": 0.42,
-    "sigma_res": 5.34
+    "sigma_res": 2.11
   },
   "omk_coherence": {
     "c0": {
@@ -560,5 +566,76 @@
     "dln_Omegam_dln_omh2_at_fixed_theta": 2.6211,
     "f_ratio_wb_wm_BAO": -0.2075,
     "f_ratio_th_wm_BAO": -0.1604
+  },
+  "sailer_2025": {
+    "source": "Sailer, Farren, Ferraro, White 2025 (arXiv:2504.16932; PRL 136, 081002)",
+    "tau_lambda_cdm": {
+      "mean": 0.09,
+      "sigma": 0.012,
+      "where": "Sailer+25 Eq. 2 (high-l CMB + CMB lensing + DESI DR2 BAO within LCDM, low-l polarization removed)"
+    },
+    "tau_lambda_cdm_with_nu": {
+      "mean": 0.095,
+      "sigma": 0.014,
+      "where": "Sailer+25 Eq. 2 (same as above but with sum m_nu >= 0.06 eV prior)"
+    },
+    "tau_planck_low_l_pr3": {
+      "mean": 0.0544,
+      "sigma": 0.0073,
+      "where": "Planck 2018 / Aghanim+20 (PR3)"
+    },
+    "tau_planck_pr4_camspec": {
+      "mean": 0.0533,
+      "sigma": 0.0074,
+      "where": "Rosenberg, Gratton, Efstathiou 2022 (PR4 CamSpec)"
+    },
+    "tau_planck_pr4_hillipop": {
+      "mean": 0.0566,
+      "sigma": 0.0058,
+      "where": "Tristram+24 PR4"
+    },
+    "tau_pagano_npipe": {
+      "mean": 0.0566,
+      "sigma": 0.0058,
+      "where": "Pagano+20 NPIPE; quoted here as source of sigma_tau ~ 0.006 used in our back-of-envelope"
+    },
+    "omegam_tau_slope": {
+      "intercept": 0.349,
+      "slope": -0.505,
+      "where": "Sailer+25 Fig. 1 (left panel, dashed line); empirical Omega_m(tau) degeneracy in CMB+lensing fits"
+    },
+    "delta_Omegam_tau_054_to_090": {
+      "value": -0.018,
+      "derivation": "(-0.505) * (0.090 - 0.054)",
+      "use": "quoted in extensions.tex paragraph after line 30"
+    },
+    "w0wa_pref_tau_006": {
+      "sigma": 2.8,
+      "delta_chi2_map": -10.75,
+      "where": "Sailer+25 Evolving dark energy section, tau = 0.06 prior"
+    },
+    "w0wa_pref_tau_009": {
+      "sigma": 1.4,
+      "delta_chi2_map": -3.82,
+      "where": "Sailer+25 Evolving dark energy section, tau = 0.09 prior"
+    },
+    "lensing_constraint_back_of_envelope": {
+      "source": "Notes file output/CMB_LENSING_OMEGAM_CONSTRAINT.md",
+      "As_lensing_combination_precision_planck2015": 0.03,
+      "As_lensing_combination_precision_act_dr6": 0.02,
+      "As_e_minus_2tau_precision": 0.003,
+      "sigma_tau_assumed": 0.006,
+      "sigma_lnAs": 0.0124,
+      "thetastar_omegamh3_precision": 0.003,
+      "sigma_lnomega_m_from_lensing_planck2015": [
+        0.017,
+        0.019
+      ],
+      "sigma_lnomega_m_from_lensing_act_dr6": [
+        0.012,
+        0.013
+      ],
+      "sigma_lnomega_m_primary": 0.008
+    }
   }
 }

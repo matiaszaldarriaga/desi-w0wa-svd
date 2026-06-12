@@ -110,6 +110,53 @@ numbers["_metadata"] = {
 }
 
 # ════════════════════════════════════════════════════════════════
+# §2.1.1 How tightly the CMB pins the high-z distance ratios.
+# Weighted fractional scatter (std/mean) across the FULL ACT LCDM chain of:
+#   Q1 = theta_star = r_star / D_M(z_star)   (CMB-measured)
+#   Q2 = D_M(z_star) / r_d                    (swap r_star -> r_d)
+#   Q3 = D_V(z_star) / r_d                    (swap D_M -> D_V, i.e. add Hubble)
+# Q1,Q2 from chain columns (thetastar, rstar, rdrag); Q3 needs H(z_star), which we
+# evaluate analytically with radiation (Tcmb=2.7255 K, Neff=3.044).
+# ════════════════════════════════════════════════════════════════
+print("§2.1.1 distance-ratio scatter (theta*, D_M/r_d, D_V/r_d)...")
+_ap = act_s.getParams()
+_w_chain = np.asarray(act_s.weights, dtype=float)
+_rstar_c = np.asarray(_ap.rstar)
+_zstar_c = np.asarray(_ap.zstar)
+_thetastar_c = np.asarray(_ap.thetastar)        # CAMB convention: 100 * theta_star
+_rdrag_c = np.asarray(_ap.rdrag)
+_H0_c = np.asarray(_ap.H0)
+_omh2_c = np.asarray(_ap.omch2) + np.asarray(_ap.ombh2)
+_theta_rad_c = _thetastar_c / 100.0
+_DM_star_c = _rstar_c / _theta_rad_c             # r_star / theta_star  [Mpc]
+# H(z_star) with radiation, fully vectorized:
+_omega_gamma = 2.469e-5
+_Neff_rad = 3.044
+_omega_r = _omega_gamma * (1.0 + _Neff_rad * 7.0 / 8.0 * (4.0 / 11.0) ** (4.0 / 3.0))
+_h2_c = (_H0_c / 100.0) ** 2
+_Om_c = _omh2_c / _h2_c
+_Or_c = _omega_r / _h2_c
+_zp1 = 1.0 + _zstar_c
+_Ez_star = np.sqrt(_Om_c * _zp1 ** 3 + _Or_c * _zp1 ** 4 + (1.0 - _Om_c - _Or_c))
+_DH_star_c = 299792.458 / (_H0_c * _Ez_star)
+_DV_star_c = (_zstar_c * _DM_star_c ** 2 * _DH_star_c) ** (1.0 / 3.0)
+
+def _wfrac_scatter(x):
+    """Weighted std / weighted mean (percent)."""
+    m = float(np.average(x, weights=_w_chain))
+    sd = float(np.sqrt(np.average((x - m) ** 2, weights=_w_chain)))
+    return 100.0 * sd / m
+
+numbers["section211_ratio_scatter"] = {
+    "frac_scatter_theta_star_pct": round(_wfrac_scatter(_thetastar_c), 3),
+    "frac_scatter_DM_over_rd_pct": round(_wfrac_scatter(_DM_star_c / _rdrag_c), 3),
+    "frac_scatter_DV_over_rd_pct": round(_wfrac_scatter(_DV_star_c / _rdrag_c), 3),
+    "z_star_mean": round(float(np.average(_zstar_c, weights=_w_chain)), 1),
+}
+print("  theta*: {frac_scatter_theta_star_pct}%, D_M/r_d: {frac_scatter_DM_over_rd_pct}%, "
+      "D_V/r_d: {frac_scatter_DV_over_rd_pct}%".format(**numbers["section211_ratio_scatter"]))
+
+# ════════════════════════════════════════════════════════════════
 # §2. Reference cosmology and datasets
 # ════════════════════════════════════════════════════════════════
 print("§2. Reference cosmology and datasets...")
