@@ -1,27 +1,94 @@
 #!/usr/bin/env python3
-"""Build the claim provenance dashboard from YAML registries and paper data.
+"""Build the claim provenance dashboard from the YAML registries and paper data.
 
-Reads structure/claims.yaml, structure/figures.yaml, structure/scripts.yaml,
-data/paper_numbers.json, and paper/sections/*.tex to generate
-an interactive HTML dashboard at structure/claim_dashboard.html.
+The dashboard (``output/claim_dashboard.html``) is a *single, self-contained*
+HTML file aimed at two audiences: human readers and the AI agents that crawl the
+public repository. It lets either navigate the paper's logic — the claim
+dependency graph, and, per claim, the evidence, supporting figures, quoted
+numbers, and links to the exact code that produced them.
+
+Design notes
+------------
+* **Self-contained.** Figures are rasterized and embedded as base64 data URIs,
+  so the file renders anywhere with no external ``dashboard_assets/`` directory
+  and no display-time image conversion. Copy the one file and it just works.
+* **Layout-independent links.** Source/section/number links point at the public
+  GitHub repository (``GITHUB_BASE``), with a path rewrite from the working-tree
+  layout to the flattened release layout, so they resolve no matter where the
+  HTML file lives.
+* **Navigation, not audit.** The shipped page is reader/bot-facing navigation
+  plus one positive provenance signal. The internal quality-control checks
+  (provenance completeness, number mismatches, missing scripts, unlinked
+  figures) run at *build time* — printed to the console and written to an
+  author-only report (``output/dashboard_audit.md``) that is NOT shipped.
+
+This script is the single source of truth for the dashboard; the release build
+process must run it so the published dashboard is regenerated from the current
+registries (see docs/superpowers/plans/2026-03-31-release-directory.md).
 
 Usage:
     python scripts/build_dashboard.py
 """
 
+import base64
 import json
 import re
 import subprocess
-import textwrap
+import tempfile
 from collections import defaultdict
+from datetime import date
 from pathlib import Path
 
 import yaml
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
+# Public repository the shipped links resolve against.
+GITHUB_BASE = "https://github.com/matiaszaldarriaga/desi-w0wa-svd/blob/main/"
 
-# ── Data loaders ──────────────────────────────────────────────────────────────
+
+# ── Working-tree → public-repo path mapping ──────────────────────────────────
+#
+# The working tree uses calculation/scripts, code/figures, input/reference_data;
+# the public (release) repo flattens these. Links must point at the public
+# layout so they resolve in the shipped artifact.
+
+
+def to_repo_path(p):
+    """Map a working-tree path to its location in the public (flat) repo."""
+    p = p.replace("calculation/scripts/", "scripts/")
+    p = p.replace("code/figures/", "scripts/")
+    p = p.replace("input/reference_data/", "data/")
+    return p
+
+
+def gh_url(p, line=None):
+    """GitHub blob URL for a working-tree path, optionally with a line anchor."""
+    url = GITHUB_BASE + to_repo_path(p)
+    if line:
+        url += f"#L{line}"
+    return url
+
+
+# Literature evidence is stored under input/literature/<arxiv-id>/; it is a
+# citation, not code, and is rendered as an arXiv link rather than a repo link.
+_ARXIV_LIT = re.compile(r"input/literature/(\d{4}\.\d{4,5})/")
+
+
+def is_literature_ref(ref):
+    return bool(_ARXIV_LIT.search(ref)) or ref.endswith(".pdf")
+
+
+def classify_ref(ref):
+    """Return ('code'|'reference', html_link) for an evidence data_ref."""
+    m = _ARXIV_LIT.search(ref)
+    if m:
+        aid = m.group(1)
+        return "reference", f'<a href="https://arxiv.org/abs/{aid}">arXiv:{aid}</a>'
+    return "code", f'<a href="{gh_url(ref)}">{_esc(Path(ref).name)}</a>'
+
+
+# ── Data loaders ─────────────────────────────────────────────────────────────
 
 
 def load_claims():
@@ -40,8 +107,14 @@ def load_scripts():
 
 
 def load_numbers():
-    with open(PROJECT_ROOT / "data" / "paper_numbers.json") as f:
-        return json.load(f)
+    # Layout-aware: working tree keeps it under input/reference_data/, the
+    # flattened release under data/.
+    for rel in ("input/reference_data/paper_numbers.json", "data/paper_numbers.json"):
+        p = PROJECT_ROOT / rel
+        if p.exists():
+            with open(p) as f:
+                return json.load(f)
+    raise FileNotFoundError("paper_numbers.json not found in input/reference_data/ or data/")
 
 
 # ── LaTeX context extraction ─────────────────────────────────────────────────
@@ -53,12 +126,10 @@ def extract_claim_contexts():
     sections_dir = PROJECT_ROOT / "paper" / "sections"
     for tex_file in sorted(sections_dir.glob("*.tex")):
         text = tex_file.read_text()
-        # Match \claim{id}{text} — text may contain LaTeX commands with braces,
-        # so we do a balanced-brace match for the second argument.
         for m in re.finditer(r"\\claim\{([^}]+)\}\{", text):
             claim_id = m.group(1)
-            # Find matching closing brace for the second argument
-            start_brace = m.end() - 1  # position of the opening {
+            # Balanced-brace match for the second argument.
+            start_brace = m.end() - 1
             depth = 0
             end_brace = start_brace
             for i in range(start_brace, len(text)):
@@ -71,19 +142,7 @@ def extract_claim_contexts():
                         break
             statement = text[start_brace + 1 : end_brace]
             line_num = text[: m.start()].count("\n") + 1
-
-            # Extract surrounding context (~400 chars)
-            ctx_start = max(0, m.start() - 200)
-            ctx_end = min(len(text), end_brace + 200)
-            context_text = text[ctx_start:ctx_end]
-
-            entry = {
-                "file": tex_file.name,
-                "line": line_num,
-                "statement": statement,
-                "context": context_text,
-            }
-            # If claim appears in multiple files, keep all locations
+            entry = {"file": tex_file.name, "line": line_num, "statement": statement}
             if claim_id in contexts:
                 if isinstance(contexts[claim_id], list):
                     contexts[claim_id].append(entry)
@@ -94,50 +153,38 @@ def extract_claim_contexts():
     return contexts
 
 
-def extract_evidence_annotations():
-    """Find all \\evidence{claim_id}{ev_id}{text} in .tex files."""
-    evidence = {}
-    sections_dir = PROJECT_ROOT / "paper" / "sections"
-    for tex_file in sorted(sections_dir.glob("*.tex")):
-        text = tex_file.read_text()
-        for m in re.finditer(
-            r"\\evidence\{([^}]+)\}\{([^}]+)\}\{([^}]*)\}", text
-        ):
-            claim_id, ev_id, ev_text = m.group(1), m.group(2), m.group(3)
-            evidence[ev_id] = {
-                "claim_id": claim_id,
-                "text": ev_text,
-                "file": tex_file.name,
-                "line": text[: m.start()].count("\n") + 1,
-            }
-    return evidence
+# ── Figure rasterization → base64 data URIs ──────────────────────────────────
 
 
-def extract_dataref_annotations():
-    """Find all \\dataref{ev_id}{script_path} in .tex files."""
-    datarefs = defaultdict(list)
-    sections_dir = PROJECT_ROOT / "paper" / "sections"
-    for tex_file in sorted(sections_dir.glob("*.tex")):
-        text = tex_file.read_text()
-        for m in re.finditer(r"\\dataref\{([^}]+)\}\{([^}]+)\}", text):
-            ev_id = m.group(1)
-            script_path = m.group(2).replace(r"\_", "_")
-            datarefs[ev_id].append(script_path)
-    return datarefs
+def _rasterize_pdf(pdf_path, out_png):
+    """Rasterize the first page of a PDF to PNG using the first available backend.
 
-
-# ── Figure PDF to PNG conversion ─────────────────────────────────────────────
-
-
-def convert_figures_to_png(figures_yaml):
-    """Convert registered figure PDFs to PNGs for browser display.
-
-    Only converts figures listed in figures.yaml — never scans the directory.
+    Tries pdftoppm (poppler, cross-platform) then sips (macOS). Returns True on
+    success. Keeping multiple backends means the build is not macOS-only.
     """
-    assets_dir = PROJECT_ROOT / "structure" / "dashboard_assets"
-    assets_dir.mkdir(parents=True, exist_ok=True)
+    out_png = Path(out_png)
+    prefix = out_png.with_suffix("")  # pdftoppm appends ".png"
+    attempts = [
+        ["pdftoppm", "-png", "-r", "110", "-singlefile", str(pdf_path), str(prefix)],
+        ["sips", "-s", "format", "png", "-Z", "1400", str(pdf_path), "--out", str(out_png)],
+    ]
+    for cmd in attempts:
+        try:
+            subprocess.run(cmd, check=True, capture_output=True)
+            if out_png.exists():
+                return True
+        except (subprocess.CalledProcessError, FileNotFoundError):
+            continue
+    return False
 
-    # Collect all PDF paths from the registry
+
+def build_figure_data_uris(figures_yaml):
+    """Rasterize every registered figure PDF and return {png_name: data_uri}.
+
+    Rasterization happens in a temporary directory; nothing persistent is
+    written, so the script behaves identically in the working-tree and flattened
+    release layouts. Images are embedded as base64 (no external assets dir).
+    """
     pdf_paths = []
     for fig in figures_yaml:
         for ff in fig.get("file", "").split(","):
@@ -145,136 +192,95 @@ def convert_figures_to_png(figures_yaml):
             if ff:
                 pdf_paths.append(PROJECT_ROOT / ff)
 
-    converted = 0
-    skipped = 0
-    for pdf in sorted(set(pdf_paths)):
-        if not pdf.exists():
-            print(f"  Warning: registered figure not found: {pdf}")
-            continue
-        png = assets_dir / pdf.with_suffix(".png").name
-        if not png.exists():
-            try:
-                subprocess.run(
-                    ["sips", "-s", "format", "png", str(pdf), "--out", str(png)],
-                    check=True,
-                    capture_output=True,
-                )
-                converted += 1
-            except (subprocess.CalledProcessError, FileNotFoundError) as e:
-                print(f"  Warning: could not convert {pdf.name}: {e}")
-        else:
-            skipped += 1
-
-    total = converted + skipped
-    print(f"  Figures: {converted} converted, {skipped} cached, {total} total PNGs")
-    return assets_dir
+    uris = {}
+    stats = {"converted": 0, "failed": [], "missing": []}
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_dir = Path(tmp)
+        for pdf in sorted(set(pdf_paths)):
+            png_name = pdf.with_suffix(".png").name
+            if not pdf.exists():
+                stats["missing"].append(str(pdf.relative_to(PROJECT_ROOT)))
+                continue
+            png = tmp_dir / png_name
+            if _rasterize_pdf(pdf, png):
+                stats["converted"] += 1
+            else:
+                stats["failed"].append(pdf.name)
+                continue
+            data = base64.b64encode(png.read_bytes()).decode("ascii")
+            uris[png_name] = f"data:image/png;base64,{data}"
+    return uris, stats
 
 
-# ── Provenance status checker ────────────────────────────────────────────────
+# ── Number matching (build-time audit only) ──────────────────────────────────
 
-
-def check_provenance(claim, figures_by_claim, scripts_yaml, evidence_annots, datarefs):
-    """Return 'green', 'yellow', or 'red' based on provenance completeness."""
-    issues = []
-    claim_id = claim["id"]
-
-    # Check evidence exists
-    evidence_list = claim.get("evidence", [])
-    if not evidence_list:
-        issues.append("no evidence items in YAML")
-
-    # Check data_refs point to existing scripts
-    for ev in evidence_list:
-        refs = ev.get("data_refs", [])
-        if not refs:
-            issues.append(f"evidence '{ev['id']}' has no data_refs")
-        for ref in refs:
-            if not (PROJECT_ROOT / ref).exists():
-                issues.append(f"missing script: {ref}")
-
-    # Check if claim has associated figures
-    if claim_id not in figures_by_claim:
-        # Not necessarily bad -- some claims are purely numerical
-        pass
-
-    # Check if claim has LaTeX annotation
-    if not claim.get("_context"):
-        issues.append("no \\claim annotation found in LaTeX")
-
-    if not issues:
-        return "green"
-    elif len(issues) <= 1:
-        return "yellow"
-    else:
-        return "red"
-
-
-# ── Number matching ──────────────────────────────────────────────────────────
-
-# Map claim IDs to the paper_numbers.json keys they rely on
+# For each claim, the paper_numbers.json keys whose values it quotes. The
+# dashboard displays the value resolved live from paper_numbers.json — the
+# canonical source — so a printed number can never drift from the registry, and
+# a renamed/removed key surfaces in the build self-check rather than silently.
+# (Deeper paper-text vs JSON verification is the job of verify_paper_numbers.py.)
 CLAIM_NUMBER_KEYS = {
-    "c0_universal": {
-        "section3_inner_products.min": "0.9969",
-        "section3_inner_products.mean": "0.9984",
-    },
-    "c0_is_omegamh2": {
-        "section3_sequential_R2.omh2_only": "0.95",
-        "section3_sequential_R2.plus_ombh2": "0.974",
-        "section3_sequential_R2.plus_theta": "0.99998",
-        "eq6_c0_formula.beta_omh2": "-0.90",
-        "eq6_c0_formula.beta_ombh2": "+0.13",
-        "eq6_c0_formula.beta_theta": "+0.17",
-    },
-    "c0_tensions_sign": {
-        "table5_c0_tensions.BAO_ACT.tension": "+2.2",
-        "table5_c0_tensions.Union3_ACT.tension": "-1.7",
-        "table5_c0_tensions.Pantheon+_ACT.tension": "-1.1",
-        "table5_c0_tensions.DES-Dovekie_ACT.tension": "-0.8",
-    },
-    "bao_constrains_omh2": {
-        "table3_sigma_c.BAO.sigma_c0": "1.56",
-        "table3_sigma_c.Union3.sigma_c0": "0.28",
-        "table3_sigma_c.Pantheon+.sigma_c0": "0.30",
-        "table3_sigma_c.DES-Dovekie.sigma_c0": "0.33",
-    },
-    "w0wa_is_c0": {
-        "table9_tensions.BAO.c1_tension": "1.2-1.3",
-        "table5_c0_tensions.BAO_ACT.tension": "2.2",
-    },
-    "c0_dominant_w0wa": {
-        "table6_grid_ranges.BAO.c0": "104",
-        "table6_grid_ranges.BAO.c1": "33.9",
-    },
-    "freed_calpha_pattern": {},
-    "three_mode_ladder": {
-        "pivot_fits.c1_BAO.z_pivot": "0.46",
-        "pivot_fits.c1_BAO.w_data": "-0.935",
-        "pivot_fits.c1_BAO.sigma_w_meas": "0.052",
-    },
-    "only_omk_measurable": {
-        "table13_new_directions.Omk_BAO.sigma_res": "4.27",
-    },
-    "omk_coherence": {
-        "omk_coherence.c0.implied_Omk": "0.0051",
-        "omk_coherence.c1.implied_Omk": "0.005",
-    },
-    "sn_blind_curvature": {
-        "table13_new_directions.Omk_Union3.sigma_res": "0.077",
-        "table13_new_directions.Omk_Pantheon+.sigma_res": "0.083",
-        "table13_new_directions.Omk_DES-Dovekie.sigma_res": "0.072",
-    },
-    "alens_dilutes": {
-        "table12_ext_c0.Alens.tension": "1.1",
-        "table12_ext_c0.LCDM.tension": "2.2",
-    },
+    "c0_universal": [
+        "section3_inner_products.min",
+        "section3_inner_products.mean",
+    ],
+    "c0_is_omegamh2": [
+        "section3_sequential_R2.omh2_only",
+        "section3_sequential_R2.plus_ombh2",
+        "section3_sequential_R2.plus_theta",
+        "eq6_c0_formula.beta_omh2",
+        "eq6_c0_formula.beta_ombh2",
+        "eq6_c0_formula.beta_theta",
+    ],
+    "c0_tensions_sign": [
+        "table5_c0_tensions.BAO_ACT.tension",
+        "table5_c0_tensions.Union3_ACT.tension",
+        "table5_c0_tensions.Pantheon+_ACT.tension",
+        "table5_c0_tensions.DES-Dovekie_ACT.tension",
+    ],
+    "bao_constrains_omh2": [
+        "table3_sigma_c.BAO.sigma_c0",
+        "table3_sigma_c.Union3.sigma_c0",
+        "table3_sigma_c.Pantheon+.sigma_c0",
+        "table3_sigma_c.DES-Dovekie.sigma_c0",
+    ],
+    "w0wa_is_c0": [
+        "table9_tensions.BAO.c1_tension",
+        "table5_c0_tensions.BAO_ACT.tension",
+    ],
+    "c0_dominant_w0wa": [
+        "table6_grid_ranges.BAO.c0",
+        "table6_grid_ranges.BAO.c1",
+    ],
+    "freed_calpha_pattern": [],
+    "three_mode_ladder": [
+        "pivot_fits.c1_BAO.z_pivot",
+        "pivot_fits.c1_BAO.w_data",
+        "pivot_fits.c1_BAO.sigma_w_meas",
+    ],
+    "only_omk_measurable": [
+        "omk_fits.sigma_res",
+    ],
+    "omk_coherence": [
+        "omk_coherence.c0.implied_Omk",
+        "omk_coherence.c1.implied_Omk",
+    ],
+    "sn_blind_curvature": [
+        "table13_new_directions.Omk_Union3.sigma_res",
+        "table13_new_directions.Omk_Pantheon+.sigma_res",
+        "table13_new_directions.Omk_DES-Dovekie.sigma_res",
+    ],
+    "alens_dilutes": [
+        "table12_ext_c0.Alens.tension",
+        "table12_ext_c0.LCDM.tension",
+    ],
 }
 
 
 def resolve_json_path(numbers, dotted_key):
-    """Resolve a dotted key like 'table5_c0_tensions.BAO_ACT.tension' into the JSON value."""
-    parts = dotted_key.split(".")
+    """Resolve a dotted key like 'table5_c0_tensions.BAO_ACT.tension'."""
     obj = numbers
-    for part in parts:
+    for part in dotted_key.split("."):
         if isinstance(obj, dict) and part in obj:
             obj = obj[part]
         else:
@@ -282,59 +288,160 @@ def resolve_json_path(numbers, dotted_key):
     return obj
 
 
-def check_number_match(paper_val_str, json_val):
-    """Check if a paper value string approximately matches a JSON value."""
-    if json_val is None:
-        return "missing"
-    try:
-        # Handle range values like "1.2-1.3"
-        if "-" in paper_val_str and paper_val_str.count("-") == 1 and not paper_val_str.startswith("-"):
-            lo, hi = paper_val_str.split("-")
-            lo_f, hi_f = float(lo), float(hi)
-            json_f = float(json_val)
-            if lo_f <= json_f <= hi_f:
-                return "match"
-            else:
-                return "mismatch"
-        # Handle signed values
-        paper_val_str_clean = paper_val_str.lstrip("+")
-        paper_f = float(paper_val_str_clean)
-        json_f = float(json_val)
-        if abs(paper_f - json_f) < 0.051:  # tolerance for rounding
-            return "match"
-        else:
-            return "mismatch"
-    except (ValueError, TypeError):
-        return "unknown"
+def _fmt_number(v):
+    """Format a JSON number for display (trim trailing zeros, keep signs)."""
+    if isinstance(v, bool) or not isinstance(v, (int, float)):
+        return str(v)
+    s = f"{v:.5g}"
+    return s
 
 
 def get_claim_numbers(claim_id, numbers):
-    """Return list of {key, paper_val, json_val, status} for a claim."""
-    mappings = CLAIM_NUMBER_KEYS.get(claim_id, {})
+    """Return [{key, value}] for a claim, with values from paper_numbers.json.
+
+    ``value`` is None when the key is missing (flagged by the build self-check).
+    """
     results = []
-    for key, paper_val in mappings.items():
-        json_val = resolve_json_path(numbers, key)
-        status = check_number_match(paper_val, json_val)
-        results.append({
-            "key": key,
-            "paper_val": paper_val,
-            "json_val": json_val,
-            "status": status,
-        })
+    for key in CLAIM_NUMBER_KEYS.get(claim_id, []):
+        results.append({"key": key, "value": resolve_json_path(numbers, key)})
     return results
+
+
+def check_provenance(claim):
+    """Audit-only provenance grade: 'green' | 'yellow' | 'red'."""
+    issues = []
+    evidence_list = claim.get("evidence", [])
+    if not evidence_list:
+        issues.append("no evidence items in YAML")
+    for ev in evidence_list:
+        refs = ev.get("data_refs", [])
+        if not refs:
+            issues.append(f"evidence '{ev.get('id')}' has no data_refs")
+        for ref in refs:
+            if is_literature_ref(ref):
+                continue  # bibliographic citation, not shipped code
+            # Resolve against either layout (working tree path or flattened repo path).
+            if not (
+                (PROJECT_ROOT / ref).exists()
+                or (PROJECT_ROOT / to_repo_path(ref)).exists()
+            ):
+                issues.append(f"missing script: {ref}")
+    if not claim.get("_context"):
+        issues.append("no \\claim annotation found in LaTeX")
+    if not issues:
+        return "green", issues
+    if len(issues) <= 1:
+        return "yellow", issues
+    return "red", issues
+
+
+def run_build_audit(claims, figures_yaml, numbers, fig_stats):
+    """Run author-facing QC checks; print to console and write an author report.
+
+    Returns ``all_clean`` (bool) used to set the dashboard's provenance banner.
+    Nothing here is shipped in the HTML.
+    """
+    grades = {}
+    issues_by_claim = {}
+    for claim in claims:
+        grade, issues = check_provenance(claim)
+        grades[claim["id"]] = grade
+        if issues:
+            issues_by_claim[claim["id"]] = issues
+
+    n_green = sum(1 for g in grades.values() if g == "green")
+    n_yellow = sum(1 for g in grades.values() if g == "yellow")
+    n_red = sum(1 for g in grades.values() if g == "red")
+
+    missing_keys = []
+    for claim in claims:
+        for entry in get_claim_numbers(claim["id"], numbers):
+            if entry["value"] is None:
+                missing_keys.append((claim["id"], entry["key"]))
+
+    unlinked = [f.get("label", "?") for f in figures_yaml if not f.get("supports_claims")]
+
+    all_clean = (
+        n_yellow == 0
+        and n_red == 0
+        and not missing_keys
+        and not fig_stats["failed"]
+        and not fig_stats["missing"]
+    )
+
+    # ── Author-only report (not shipped) ──
+    report = [
+        "# Dashboard build self-check",
+        "",
+        f"Generated {date.today().isoformat()} by `scripts/build_dashboard.py`.",
+        "This is an author-facing audit. It is **not** part of the shipped dashboard.",
+        "",
+        "## Provenance",
+        f"- Claims fully traced (code + data + LaTeX annotation): "
+        f"**{n_green}/{len(claims)}**",
+    ]
+    if n_yellow or n_red:
+        report.append(f"- Partial: {n_yellow}, Missing: {n_red}")
+        for cid, issues in issues_by_claim.items():
+            report.append(f"  - `{cid}`: {'; '.join(issues)}")
+    report.append("")
+    report.append("## Quoted-number provenance keys")
+    if missing_keys:
+        report.append(
+            f"- **{len(missing_keys)} key(s) not found** in paper_numbers.json "
+            "(renamed/removed — fix the mapping in build_dashboard.py):"
+        )
+        for cid, key in missing_keys:
+            report.append(f"  - `{cid}` -> `{key}`")
+    else:
+        report.append("- All claim number keys resolve in `paper_numbers.json`. ✓")
+    report.append("")
+    report.append("## Figures")
+    report.append(f"- Rasterized and embedded: {fig_stats['converted']}")
+    if fig_stats["failed"]:
+        report.append(f"- **Failed to rasterize:** {', '.join(fig_stats['failed'])}")
+    if fig_stats["missing"]:
+        report.append(f"- **Missing PDF(s):** {', '.join(fig_stats['missing'])}")
+    if unlinked:
+        report.append(
+            f"- Not tied to a specific claim (shown as 'Overview figures'): "
+            f"{', '.join(unlinked)}"
+        )
+    report.append("")
+    report.append(f"## Verdict\n\n{'All checks pass. ✓' if all_clean else 'See issues above.'}")
+
+    report_dir = PROJECT_ROOT / "output" if (PROJECT_ROOT / "output").is_dir() else PROJECT_ROOT
+    report_path = report_dir / "dashboard_audit.md"
+    report_path.write_text("\n".join(report) + "\n")
+
+    # ── Console summary ──
+    print("Build self-check (author-only, not shipped):")
+    print(f"  Provenance: {n_green}/{len(claims)} fully traced", end="")
+    print(f" ({n_yellow} partial, {n_red} missing)" if (n_yellow or n_red) else "")
+    if missing_keys:
+        print(f"  ⚠ {len(missing_keys)} number key(s) not found in paper_numbers.json")
+    else:
+        print("  Numbers: all claim keys resolve in paper_numbers.json")
+    if fig_stats["failed"]:
+        print(f"  ⚠ figures failed to rasterize: {', '.join(fig_stats['failed'])}")
+    if fig_stats["missing"]:
+        print(f"  ⚠ missing figure PDFs: {', '.join(fig_stats['missing'])}")
+    if unlinked:
+        print(f"  Overview figures (no single claim): {', '.join(unlinked)}")
+    print(f"  Report: {report_path}")
+    if not all_clean:
+        print("  WARNING: build self-check found issues — see report above.")
+    print()
+    return all_clean
 
 
 # ── DAG layout (topological) ─────────────────────────────────────────────────
 
 
 def compute_dag_layout(claims):
-    """Compute (x, y) positions for DAG nodes using layered layout."""
+    """Compute (x, y) positions for DAG nodes using a layered layout."""
     claim_ids = [c["id"] for c in claims]
-    depends = {}
-    for c in claims:
-        depends[c["id"]] = c.get("depends_on", [])
-
-    # Assign layers by longest path from root
+    depends = {c["id"]: c.get("depends_on", []) for c in claims}
     layers = {}
 
     def get_layer(cid, visited=None):
@@ -343,101 +450,78 @@ def compute_dag_layout(claims):
         if cid in layers:
             return layers[cid]
         if cid in visited:
-            return 0  # cycle guard
+            return 0
         visited.add(cid)
         deps = depends.get(cid, [])
         if not deps:
             layers[cid] = 0
             return 0
-        max_dep = max(get_layer(d, visited) for d in deps if d in depends)
-        layers[cid] = max_dep + 1
+        layers[cid] = max(get_layer(d, visited) for d in deps if d in depends) + 1
         return layers[cid]
 
     for cid in claim_ids:
         get_layer(cid)
 
-    # Group by layer
     layer_groups = defaultdict(list)
     for cid, layer in layers.items():
         layer_groups[layer].append(cid)
 
-    # Assign positions
-    node_w = 160
-    node_h = 60
-    x_gap = 30
-    y_gap = 100
+    node_w, node_h, x_gap, y_gap = 160, 60, 30, 100
+    max_in_layer = max(len(v) for v in layer_groups.values())
+    total_width = max_in_layer * (node_w + x_gap)
     positions = {}
-
-    max_nodes_in_layer = max(len(v) for v in layer_groups.values())
-    total_width = max_nodes_in_layer * (node_w + x_gap)
-
-    for layer_idx in sorted(layer_groups.keys()):
+    for layer_idx in sorted(layer_groups):
         nodes = layer_groups[layer_idx]
-        n = len(nodes)
-        layer_width = n * node_w + (n - 1) * x_gap
+        layer_width = len(nodes) * node_w + (len(nodes) - 1) * x_gap
         start_x = (total_width - layer_width) / 2
         for i, cid in enumerate(nodes):
-            x = start_x + i * (node_w + x_gap)
-            y = layer_idx * (node_h + y_gap)
-            positions[cid] = (x, y)
-
-    return positions, node_w, node_h, layers
+            positions[cid] = (start_x + i * (node_w + x_gap), layer_idx * (node_h + y_gap))
+    return positions, node_w, node_h
 
 
-def generate_dag_svg(claims, colors):
-    """Generate an SVG DAG from claim dependencies."""
-    positions, node_w, node_h, layers = compute_dag_layout(claims)
+SHORT_LABELS = {
+    "c0_universal": "c0 universal",
+    "c0_is_omegamh2": "c0 = Omh2",
+    "c0_tensions_sign": "c0 tensions",
+    "bao_constrains_omh2": "BAO constrains",
+    "w0wa_is_c0": "w0wa = c0",
+    "c0_dominant_w0wa": "c0 dominant",
+    "freed_calpha_pattern": "freed calpha",
+    "three_mode_ladder": "pivot w=-1",
+    "only_omk_measurable": "only Omk new",
+    "omk_coherence": "Omk coherence",
+    "sn_blind_curvature": "SN blind curv",
+    "alens_dilutes": "Alens dilutes",
+    "tau_single_point_failure": "tau systematic",
+}
+
+
+def generate_dag_svg(claims):
+    """Generate an SVG of the claim dependency graph (uniform, neutral styling)."""
+    positions, node_w, node_h = compute_dag_layout(claims)
     depends = {c["id"]: c.get("depends_on", []) for c in claims}
 
-    # Short labels for nodes
-    short_labels = {
-        "c0_universal": "c0 universal",
-        "c0_is_omegamh2": "c0 = Omh2",
-        "c0_tensions_sign": "c0 tensions",
-        "bao_constrains_omh2": "BAO constrains",
-        "w0wa_is_c0": "w0wa = c0",
-        "c0_dominant_w0wa": "c0 dominant",
-        "freed_calpha_pattern": "freed calpha",
-        "three_mode_ladder": "pivot w=-1",
-        "only_omk_measurable": "only Omk new",
-        "omk_coherence": "Omk coherence",
-        "sn_blind_curvature": "SN blind curv",
-        "alens_dilutes": "Alens dilutes",
-    }
-
-    # Section labels
     section_map = {}
     for c in claims:
         sec = c.get("section", "")
-        # Extract just the section number
         m = re.match(r"([\S]+\d+)", sec)
-        section_map[c["id"]] = m.group(1) if m else sec.split()[0] if sec else ""
+        section_map[c["id"]] = m.group(1) if m else (sec.split()[0] if sec else "")
 
-    color_map = {"green": "#2e7d32", "yellow": "#f9a825", "red": "#c62828"}
-    bg_map = {"green": "#e8f5e9", "yellow": "#fff8e1", "red": "#ffebee"}
-    border_map = {"green": "#81c784", "yellow": "#fdd835", "red": "#ef5350"}
-
-    # Compute SVG dimensions
     all_x = [p[0] for p in positions.values()]
     all_y = [p[1] for p in positions.values()]
     svg_w = max(all_x) + node_w + 40 if all_x else 800
     svg_h = max(all_y) + node_h + 40 if all_y else 400
 
-    lines = []
-    lines.append(
-        f'<svg viewBox="0 0 {svg_w} {svg_h}" '
-        f'width="100%" style="max-width:{int(svg_w)}px; display:block; margin:0 auto;">'
-    )
-    lines.append("  <defs>")
-    lines.append(
+    lines = [
+        f'<svg viewBox="0 0 {svg_w} {svg_h}" width="100%" '
+        f'style="max-width:{int(svg_w)}px; display:block; margin:0 auto;">',
+        "  <defs>",
         '    <marker id="arrowhead" markerWidth="10" markerHeight="7" '
-        'refX="10" refY="3.5" orient="auto">'
-    )
-    lines.append('      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>')
-    lines.append("    </marker>")
-    lines.append("  </defs>")
-
-    # Draw edges (from dependency to dependent)
+        'refX="10" refY="3.5" orient="auto">',
+        '      <polygon points="0 0, 10 3.5, 0 7" fill="#9aa0b4"/>',
+        "    </marker>",
+        "  </defs>",
+    ]
     for cid, deps in depends.items():
         if cid not in positions:
             continue
@@ -446,61 +530,41 @@ def generate_dag_svg(claims, colors):
             if dep not in positions:
                 continue
             dx, dy = positions[dep]
-            # Arrow from dep (parent) to cid (child)
-            x1 = dx + node_w / 2
-            y1 = dy + node_h
-            x2 = cx + node_w / 2
-            y2 = cy
-            # Simple bezier for curved edges
+            x1, y1 = dx + node_w / 2, dy + node_h
+            x2, y2 = cx + node_w / 2, cy
             mid_y = (y1 + y2) / 2
             lines.append(
                 f'  <path d="M {x1},{y1} C {x1},{mid_y} {x2},{mid_y} {x2},{y2}" '
-                f'fill="none" stroke="#999" stroke-width="1.5" marker-end="url(#arrowhead)"/>'
+                f'fill="none" stroke="#b8bcd0" stroke-width="1.5" marker-end="url(#arrowhead)"/>'
             )
-
-    # Draw nodes
     for c in claims:
         cid = c["id"]
         if cid not in positions:
             continue
         x, y = positions[cid]
-        clr = colors.get(cid, "yellow")
-        bg = bg_map[clr]
-        border = border_map[clr]
-        label = short_labels.get(cid, cid)
+        label = SHORT_LABELS.get(cid, cid)
         sec = section_map.get(cid, "")
-
         lines.append(
-            f'  <g class="dag-node" onclick="scrollToPanel(\'{cid}\')" '
-            f'style="cursor:pointer">'
+            f'  <g class="dag-node" onclick="scrollToPanel(\'{cid}\')" style="cursor:pointer">'
         )
         lines.append(
-            f'    <rect x="{x}" y="{y}" width="{node_w}" height="{node_h}" '
-            f'rx="8" ry="8" fill="{bg}" stroke="{border}" stroke-width="2"/>'
+            f'    <rect x="{x}" y="{y}" width="{node_w}" height="{node_h}" rx="8" ry="8" '
+            f'fill="#eef2ff" stroke="#6366f1" stroke-width="1.5"/>'
         )
-        # Label text
         lines.append(
-            f'    <text x="{x + node_w/2}" y="{y + 22}" text-anchor="middle" '
-            f'font-size="11" font-weight="600" fill="#333">{_esc(label)}</text>'
+            f'    <text x="{x + node_w/2}" y="{y + 24}" text-anchor="middle" '
+            f'font-size="11" font-weight="600" fill="#1e1b4b">{_esc(label)}</text>'
         )
-        # Section text
         lines.append(
-            f'    <text x="{x + node_w/2}" y="{y + 40}" text-anchor="middle" '
-            f'font-size="10" fill="#666">{_esc(sec)}</text>'
-        )
-        # Status dot
-        dot_clr = color_map[clr]
-        lines.append(
-            f'    <circle cx="{x + node_w - 12}" cy="{y + 12}" r="5" fill="{dot_clr}"/>'
+            f'    <text x="{x + node_w/2}" y="{y + 42}" text-anchor="middle" '
+            f'font-size="10" fill="#6b7280">{_esc(sec)}</text>'
         )
         lines.append("  </g>")
-
     lines.append("</svg>")
     return "\n".join(lines)
 
 
 def _esc(s):
-    """Escape HTML special characters."""
     return (
         s.replace("&", "&amp;")
         .replace("<", "&lt;")
@@ -509,395 +573,264 @@ def _esc(s):
     )
 
 
-# ── HTML generation ──────────────────────────────────────────────────────────
-
-
 def _clean_latex(s):
-    """Strip common LaTeX commands for display in HTML."""
-    s = s.replace("\\czero", "c0")
-    s = s.replace("\\cone", "c1")
-    s = s.replace("\\omh", "Omega_m h^2")
-    s = s.replace("\\obh", "Omega_b h^2")
-    s = s.replace("\\thetastar", "theta*")
-    s = s.replace("\\Omk", "Omega_k")
-    s = s.replace("\\wowa", "w0wa")
-    s = s.replace("\\LCDM", "LCDM")
-    s = s.replace("\\sigres", "sigma_res")
-    s = s.replace("\\mathrm{lens}", "lens")
-    s = s.replace("\\sim", "~")
-    s = s.replace("\\pm", "+/-")
-    s = s.replace("\\sigma", "sigma")
-    s = s.replace("\\approx", "~")
-    s = re.sub(r"\$([^$]*)\$", r"\1", s)  # strip $...$
-    s = re.sub(r"\\[a-zA-Z]+\{([^}]*)\}", r"\1", s)  # strip \cmd{arg} -> arg
-    s = re.sub(r"\\[a-zA-Z]+", "", s)  # strip remaining \commands
-    s = re.sub(r"\{|\}", "", s)  # strip remaining braces
+    """Strip common LaTeX commands for plain-text display in HTML."""
+    repl = {
+        "\\czero": "c0", "\\cone": "c1", "\\omh": "Omega_m h^2",
+        "\\obh": "Omega_b h^2", "\\thetastar": "theta*", "\\Omk": "Omega_k",
+        "\\wowa": "w0wa", "\\LCDM": "LCDM", "\\sigres": "sigma_res",
+        "\\mathrm{lens}": "lens", "\\sim": "~", "\\pm": "+/-",
+        "\\sigma": "sigma", "\\approx": "~",
+    }
+    for k, v in repl.items():
+        s = s.replace(k, v)
+    s = re.sub(r"\$([^$]*)\$", r"\1", s)
+    s = re.sub(r"\\[a-zA-Z]+\{([^}]*)\}", r"\1", s)
+    s = re.sub(r"\\[a-zA-Z]+", "", s)
+    s = re.sub(r"\{|\}", "", s)
     return s.strip()
 
 
-def generate_detail_panel(claim, figures_by_claim, scripts_by_path, numbers, colors,
-                          evidence_annots, datarefs):
-    """Generate an HTML detail panel for a single claim."""
+# ── HTML generation ──────────────────────────────────────────────────────────
+
+
+def generate_detail_panel(claim, figures_by_claim, numbers, fig_uris):
+    """Generate the navigation panel for a single claim (reader/bot-facing)."""
     cid = claim["id"]
-    clr = colors.get(cid, "yellow")
     statement = claim.get("statement", "")
     section = claim.get("section", "")
-
-    # Location info
     ctx = claim.get("_context")
-    if isinstance(ctx, list):
-        loc_parts = [f"{c['file']}:{c['line']}" for c in ctx]
-        location = ", ".join(loc_parts)
-    elif ctx:
-        location = f"{ctx['file']}:{ctx['line']}"
-    else:
-        location = claim.get("file", "unknown")
 
-    lines = []
-    lines.append(f'<div id="panel-{cid}" class="claim-panel {clr}">')
-    lines.append(f'  <div class="panel-header" onclick="togglePanel(\'{cid}\')">')
-    lines.append(f'    <span class="status-dot {clr}"></span>')
-    lines.append(f"    <strong>{_esc(cid)}</strong>")
-    lines.append(f'    <span class="section-tag">{_esc(section)}</span>')
-    lines.append(f'    <span class="expand-icon" id="icon-{cid}">+</span>')
-    lines.append("  </div>")
-    lines.append(f'  <p class="claim-statement">{_esc(_clean_latex(statement))}</p>')
+    lines = [
+        f'<div id="panel-{cid}" class="claim-panel">',
+        f'  <div class="panel-header" onclick="togglePanel(\'{cid}\')">',
+        f"    <strong>{_esc(cid)}</strong>",
+        f'    <span class="section-tag">{_esc(section)}</span>',
+        f'    <span class="expand-icon" id="icon-{cid}">+</span>',
+        "  </div>",
+        f'  <p class="claim-statement">{_esc(_clean_latex(statement))}</p>',
+        f'  <div id="detail-{cid}" class="panel-detail" style="display:none">',
+    ]
 
-    lines.append(f'  <div id="detail-{cid}" class="panel-detail" style="display:none">')
+    # Location (link to the LaTeX source on GitHub).
+    ctx_entries = ctx if isinstance(ctx, list) else ([ctx] if ctx else [])
+    if ctx_entries:
+        lines.append("    <h4>Defined in</h4>")
+        for c in ctx_entries:
+            url = gh_url(f"paper/sections/{c['file']}", c["line"])
+            lines.append(f'    <p><a href="{url}">{_esc(c["file"])}:{c["line"]}</a></p>')
 
-    # Location
-    lines.append(f"    <h4>Location</h4>")
-    if isinstance(ctx, list):
-        for c in ctx:
-            rel = f"../paper/sections/{c['file']}"
-            lines.append(f'    <p><a href="{rel}">{_esc(c["file"])}:{c["line"]}</a></p>')
-    elif ctx:
-        rel = f"../paper/sections/{ctx['file']}"
-        lines.append(f'    <p><a href="{rel}">{_esc(ctx["file"])}:{ctx["line"]}</a></p>')
-
-    # Evidence
+    # Evidence (description + GitHub links to the producing code).
     evidence_list = claim.get("evidence", [])
     if evidence_list:
         lines.append("    <h4>Evidence</h4>")
         lines.append("    <ul>")
         for ev in evidence_list:
-            ev_id = ev.get("id", "")
-            ev_desc = ev.get("description", "")
-            refs = ev.get("data_refs", [])
-            lines.append(f"      <li>")
-            lines.append(f"        <strong>{_esc(ev_id)}</strong>: {_esc(ev_desc)}")
-            if refs:
-                script_links = []
-                for ref in refs:
-                    rel_path = f"../{ref}"
-                    name = Path(ref).name
-                    exists = (PROJECT_ROOT / ref).exists()
-                    if exists:
-                        script_links.append(f'<a href="{rel_path}">{_esc(name)}</a>')
-                    else:
-                        script_links.append(
-                            f'<span class="missing">{_esc(name)} (missing)</span>'
-                        )
-                lines.append(f"        <br>Scripts: {', '.join(script_links)}")
+            lines.append("      <li>")
+            lines.append(
+                f"        <strong>{_esc(ev.get('id',''))}</strong>: "
+                f"{_esc(ev.get('description',''))}"
+            )
+            code_links, ref_links = [], []
+            for ref in ev.get("data_refs", []):
+                kind, html = classify_ref(ref)
+                (code_links if kind == "code" else ref_links).append(html)
+            if code_links:
+                lines.append(f"        <br>Code: {', '.join(code_links)}")
+            if ref_links:
+                lines.append(f"        <br>Reference: {', '.join(ref_links)}")
             lines.append("      </li>")
         lines.append("    </ul>")
 
-    # Figures
+    # Figures (embedded base64).
     figs = figures_by_claim.get(cid, [])
     if figs:
         lines.append("    <h4>Figures</h4>")
         lines.append('    <div class="figures-grid">')
         for fig in figs:
-            fig_file = fig.get("file", "")
-            # Handle comma-separated file lists
-            fig_files = [f.strip() for f in fig_file.split(",")]
-            for ff in fig_files:
-                pdf_name = Path(ff).name
+            for ff in fig.get("file", "").split(","):
+                ff = ff.strip()
+                if not ff:
+                    continue
                 png_name = Path(ff).stem + ".png"
+                uri = fig_uris.get(png_name)
                 label = fig.get("label", "")
-                lines.append(f'      <div class="fig-card">')
-                lines.append(
-                    f'        <img src="dashboard_assets/{png_name}" '
-                    f'alt="{_esc(label)}" loading="lazy">'
-                )
+                lines.append('      <div class="fig-card">')
+                if uri:
+                    lines.append(
+                        f'        <img src="{uri}" alt="{_esc(label)}" loading="lazy">'
+                    )
                 lines.append(f"        <p>{_esc(label)}</p>")
-                lines.append(f"      </div>")
+                lines.append("      </div>")
         lines.append("    </div>")
 
-    # Numbers
-    num_entries = get_claim_numbers(cid, numbers)
+    # Numbers (provenance: the canonical value from paper_numbers.json + its key).
+    num_entries = [e for e in get_claim_numbers(cid, numbers) if e["value"] is not None]
     if num_entries:
-        lines.append("    <h4>Numbers</h4>")
+        json_url = gh_url("input/reference_data/paper_numbers.json")
+        lines.append("    <h4>Key numbers</h4>")
         lines.append('    <table class="numbers-table">')
-        lines.append(
-            "      <tr><th>JSON Key</th><th>Paper Value</th>"
-            "<th>JSON Value</th><th>Status</th></tr>"
-        )
+        lines.append("      <tr><th>Value</th><th>Traces to (paper_numbers.json)</th></tr>")
         for entry in num_entries:
-            status = entry["status"]
-            status_class = {
-                "match": "num-match",
-                "mismatch": "num-mismatch",
-                "missing": "num-missing",
-                "unknown": "num-unknown",
-            }.get(status, "")
-            status_icon = {
-                "match": "OK",
-                "mismatch": "MISMATCH",
-                "missing": "N/A",
-                "unknown": "?",
-            }.get(status, "?")
-            json_display = (
-                str(entry["json_val"]) if entry["json_val"] is not None else "---"
-            )
             lines.append(
-                f'      <tr class="{status_class}">'
-                f"<td><code>{_esc(entry['key'])}</code></td>"
-                f"<td>{_esc(entry['paper_val'])}</td>"
-                f"<td>{_esc(json_display)}</td>"
-                f"<td>{status_icon}</td></tr>"
+                "      <tr>"
+                f"<td>{_esc(_fmt_number(entry['value']))}</td>"
+                f'<td><a href="{json_url}"><code>{_esc(entry["key"])}</code></a></td>'
+                "</tr>"
             )
         lines.append("    </table>")
 
-    # Dependencies
+    # Dependencies / dependents.
     deps = claim.get("depends_on", [])
     if deps:
-        lines.append("    <h4>Dependencies</h4>")
         dep_links = [
             f'<a href="#panel-{d}" onclick="scrollToPanel(\'{d}\')">{_esc(d)}</a>'
             for d in deps
         ]
-        lines.append(f"    <p>Depends on: {', '.join(dep_links)}</p>")
-
-    # Depended on by
+        lines.append(f"    <p class=\"deps\">Depends on: {', '.join(dep_links)}</p>")
     dependents = claim.get("_dependents", [])
     if dependents:
         dep_links = [
             f'<a href="#panel-{d}" onclick="scrollToPanel(\'{d}\')">{_esc(d)}</a>'
             for d in dependents
         ]
-        lines.append(f"    <p>Required by: {', '.join(dep_links)}</p>")
+        lines.append(f"    <p class=\"deps\">Required by: {', '.join(dep_links)}</p>")
 
-    lines.append("  </div>")  # panel-detail
-    lines.append("</div>")  # claim-panel
-
+    lines.append("  </div>")
+    lines.append("</div>")
     return "\n".join(lines)
 
 
-def generate_summary_bar(claims, colors, figures_yaml, claims_yaml):
-    """Generate summary statistics bar."""
+def generate_provenance_banner(claims, figures_yaml, all_clean):
+    """One positive, truthful provenance line for the public page."""
     n_claims = len(claims)
-    n_green = sum(1 for c in claims if colors.get(c["id"]) == "green")
-    n_yellow = sum(1 for c in claims if colors.get(c["id"]) == "yellow")
-    n_red = sum(1 for c in claims if colors.get(c["id"]) == "red")
-
-    n_figures = len(figures_yaml)
-
+    n_figs = len(figures_yaml)
+    traced = (
+        " &middot; <span class=\"check\">every claim traces to code, data &amp; figures &#10003;</span>"
+        if all_clean
+        else ""
+    )
     return f"""
-    <div class="summary-bar">
-      <div class="stat">
-        <span class="stat-number">{n_claims}</span>
-        <span class="stat-label">Claims</span>
-      </div>
-      <div class="stat">
-        <span class="stat-number green-text">{n_green}</span>
-        <span class="stat-label">Complete</span>
-      </div>
-      <div class="stat">
-        <span class="stat-number yellow-text">{n_yellow}</span>
-        <span class="stat-label">Partial</span>
-      </div>
-      <div class="stat">
-        <span class="stat-number red-text">{n_red}</span>
-        <span class="stat-label">Missing</span>
-      </div>
-      <div class="stat-divider"></div>
-      <div class="stat">
-        <span class="stat-number">{n_figures}</span>
-        <span class="stat-label">Registered Figures</span>
-      </div>
+    <div class="banner">
+      <strong>{n_claims} claims</strong> &middot; <strong>{n_figs} figures</strong>{traced}
+      <div class="banner-sub">Click any claim to open its evidence, figures, quoted numbers, and the code that produced them.</div>
     </div>
     """
 
 
-def generate_unlinked_list(figures_yaml):
-    """Generate list of registered figures not linked to any claim."""
-    unlinked = [
-        fig for fig in figures_yaml
-        if not fig.get("supports_claims")
-    ]
-
-    if not unlinked:
+def generate_overview_figures(figures_yaml, fig_uris):
+    """Figures that introduce the data rather than support a single claim."""
+    overview = [f for f in figures_yaml if not f.get("supports_claims")]
+    if not overview:
         return ""
-
-    lines = ['<div class="orphan-section">']
-    lines.append("  <h3>Registered Figures Not Linked to Any Claim</h3>")
-    lines.append("  <p>These figures are in the paper (figures.yaml) but have no <code>supports_claims</code> entry. Consider whether they should be linked to a claim or whether they are purely illustrative.</p>")
-    lines.append('  <div class="figures-grid">')
-    for fig in unlinked:
+    lines = [
+        '<div class="overview-section">',
+        "  <h2>Overview figures</h2>",
+        "  <p>These figures introduce the datasets and distance measurements used "
+        "throughout the paper. They support the analysis as a whole rather than a "
+        "single claim.</p>",
+        '  <div class="figures-grid">',
+    ]
+    for fig in overview:
         label = fig.get("label", "unknown")
-        section = fig.get("section", "?")
+        section = fig.get("section", "")
         for ff in fig.get("file", "").split(","):
             ff = ff.strip()
             if not ff:
                 continue
-            pdf_name = Path(ff).name
-            png_name = Path(pdf_name).stem + ".png"
-            lines.append(f'    <div class="fig-card orphan">')
-            lines.append(
-                f'      <img src="dashboard_assets/{png_name}" '
-                f'alt="{_esc(pdf_name)}" loading="lazy">'
-            )
-            lines.append(f"      <p>{_esc(label)} ({section})</p>")
-            lines.append(f"    </div>")
+            png_name = Path(ff).stem + ".png"
+            uri = fig_uris.get(png_name)
+            lines.append('    <div class="fig-card">')
+            if uri:
+                lines.append(f'      <img src="{uri}" alt="{_esc(label)}" loading="lazy">')
+            lines.append(f"      <p>{_esc(label)} ({_esc(section)})</p>")
+            lines.append("    </div>")
     lines.append("  </div>")
     lines.append("</div>")
     return "\n".join(lines)
 
 
 CSS = """
-:root {
-  --green: #2e7d32;
-  --green-bg: #e8f5e9;
-  --green-border: #81c784;
-  --yellow: #f9a825;
-  --yellow-bg: #fff8e1;
-  --yellow-border: #fdd835;
-  --red: #c62828;
-  --red-bg: #ffebee;
-  --red-border: #ef5350;
-}
 * { box-sizing: border-box; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  max-width: 1200px; margin: 0 auto; padding: 20px;
-  background: #fafafa; color: #333;
-  line-height: 1.5;
+  max-width: 1100px; margin: 0 auto; padding: 24px;
+  background: #fafafb; color: #2b2b33; line-height: 1.55;
 }
-h1 { margin-bottom: 4px; }
-.subtitle { color: #666; margin-top: 0; margin-bottom: 24px; }
+h1 { margin-bottom: 2px; }
+.subtitle { color: #6b7280; margin-top: 0; margin-bottom: 20px; }
+.intro { background:#fff; border:1px solid #e6e6ea; border-radius:8px;
+  padding:14px 18px; margin-bottom:20px; font-size:14px; color:#444; }
 
-/* Summary bar */
-.summary-bar {
-  display: flex; align-items: center; gap: 24px;
-  background: #fff; border: 1px solid #e0e0e0; border-radius: 8px;
-  padding: 16px 24px; margin-bottom: 24px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+.banner {
+  background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 8px;
+  padding: 14px 20px; margin-bottom: 22px; font-size: 16px;
 }
-.stat { text-align: center; }
-.stat-number { display: block; font-size: 28px; font-weight: 700; }
-.stat-label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; }
-.stat-divider { width: 1px; height: 40px; background: #e0e0e0; }
-.green-text { color: var(--green); }
-.yellow-text { color: var(--yellow); }
-.red-text { color: var(--red); }
+.banner .check { color: #4338ca; }
+.banner-sub { font-size: 13px; color: #6b7280; margin-top: 4px; }
 
-/* DAG section */
 .dag-section {
-  background: #fff; border: 1px solid #e0e0e0; border-radius: 8px;
-  padding: 20px; margin-bottom: 24px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-  overflow-x: auto;
+  background: #fff; border: 1px solid #e6e6ea; border-radius: 8px;
+  padding: 20px; margin-bottom: 24px; overflow-x: auto;
 }
 .dag-section h2 { margin-top: 0; }
+.dag-node:hover rect { stroke-width: 2.5; }
 
-/* Claim panels */
 .claim-panel {
-  border: 1px solid #e0e0e0; border-radius: 8px;
+  border: 1px solid #e6e6ea; border-left: 4px solid #6366f1; border-radius: 8px;
   margin: 8px 0; background: #fff;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-  transition: box-shadow 0.2s;
 }
-.claim-panel:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
-.claim-panel.green { border-left: 4px solid var(--green-border); }
-.claim-panel.yellow { border-left: 4px solid var(--yellow-border); }
-.claim-panel.red { border-left: 4px solid var(--red-border); }
-
+.claim-panel:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
 .panel-header {
   display: flex; align-items: center; gap: 10px;
   padding: 12px 16px; cursor: pointer; user-select: none;
 }
-.panel-header:hover { background: #f5f5f5; border-radius: 8px; }
-.status-dot {
-  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
-}
-.status-dot.green { background: var(--green); }
-.status-dot.yellow { background: var(--yellow); }
-.status-dot.red { background: var(--red); }
+.panel-header:hover { background: #f7f7fb; }
 .section-tag {
-  margin-left: auto; font-size: 12px; color: #888;
-  background: #f0f0f0; padding: 2px 8px; border-radius: 4px;
+  margin-left: auto; font-size: 12px; color: #6b7280;
+  background: #f0f0f4; padding: 2px 8px; border-radius: 4px;
 }
-.expand-icon {
-  font-size: 18px; font-weight: 300; color: #999;
-  width: 24px; text-align: center;
-}
-
-.claim-statement {
-  padding: 0 16px 8px 36px; margin: 0;
-  font-size: 14px; color: #555;
-}
-.panel-detail {
-  padding: 0 16px 16px 36px;
-  border-top: 1px solid #eee;
-}
+.expand-icon { font-size: 18px; font-weight: 300; color: #9aa0b4; width: 24px; text-align: center; }
+.claim-statement { padding: 0 16px 10px 16px; margin: 0; font-size: 14px; color: #555; }
+.panel-detail { padding: 0 16px 16px 16px; border-top: 1px solid #eee; }
 .panel-detail h4 {
-  margin: 16px 0 8px 0; font-size: 13px; text-transform: uppercase;
-  letter-spacing: 0.5px; color: #888;
+  margin: 16px 0 8px 0; font-size: 12px; text-transform: uppercase;
+  letter-spacing: 0.5px; color: #8a8f9c;
 }
+.deps { font-size: 13px; color: #555; }
 
-/* Figures grid */
-.figures-grid {
-  display: flex; flex-wrap: wrap; gap: 12px;
-}
+.figures-grid { display: flex; flex-wrap: wrap; gap: 12px; }
 .fig-card {
-  border: 1px solid #e0e0e0; border-radius: 6px; padding: 8px;
-  background: #fafafa; max-width: 380px;
+  border: 1px solid #e6e6ea; border-radius: 6px; padding: 8px;
+  background: #fafafb; max-width: 380px;
 }
 .fig-card img { max-width: 100%; height: auto; border-radius: 4px; }
-.fig-card p { margin: 6px 0 0 0; font-size: 12px; color: #666; text-align: center; }
-.fig-card.orphan { border-color: #ef5350; background: #fff5f5; }
+.fig-card p { margin: 6px 0 0 0; font-size: 12px; color: #6b7280; text-align: center; }
 
-/* Numbers table */
-.numbers-table {
-  border-collapse: collapse; width: 100%; font-size: 13px;
-}
+.numbers-table { border-collapse: collapse; width: 100%; font-size: 13px; }
 .numbers-table th {
-  background: #f5f5f5; padding: 6px 10px; text-align: left;
+  background: #f5f5f8; padding: 6px 10px; text-align: left;
   border-bottom: 2px solid #ddd; font-weight: 600;
 }
 .numbers-table td { padding: 5px 10px; border-bottom: 1px solid #eee; }
-.numbers-table code { font-size: 12px; background: #f0f0f0; padding: 1px 4px; border-radius: 3px; }
-.num-match td:last-child { color: var(--green); font-weight: 600; }
-.num-mismatch { background: var(--red-bg); }
-.num-mismatch td:last-child { color: var(--red); font-weight: 600; }
-.num-missing td:last-child { color: #999; }
+.numbers-table code { font-size: 12px; background: #f0f0f4; padding: 1px 4px; border-radius: 3px; }
 
-/* Links and misc */
-a { color: #1565c0; text-decoration: none; }
+a { color: #4f46e5; text-decoration: none; }
 a:hover { text-decoration: underline; }
-.missing { color: var(--red); font-style: italic; }
 ul { padding-left: 20px; }
 li { margin-bottom: 6px; }
 
-/* Orphan section */
-.orphan-section {
-  background: #fff; border: 1px solid #e0e0e0; border-radius: 8px;
+.overview-section {
+  background: #fff; border: 1px solid #e6e6ea; border-radius: 8px;
   padding: 20px; margin-top: 24px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
-.orphan-section h3 { margin-top: 0; color: var(--red); }
+.overview-section h2 { margin-top: 0; }
 
-/* Highlight animation */
 .highlight { animation: flash 1s ease-out; }
-@keyframes flash {
-  0% { background: #fff9c4; }
-  100% { background: transparent; }
-}
+@keyframes flash { 0% { background: #faf5d7; } 100% { background: transparent; } }
 
-/* Footer */
 .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #eee;
-  font-size: 12px; color: #999; text-align: center; }
+  font-size: 12px; color: #9aa0b4; text-align: center; }
 """
 
 JS = """
@@ -906,65 +839,44 @@ function togglePanel(id) {
   var icon = document.getElementById('icon-' + id);
   if (detail.style.display === 'none') {
     detail.style.display = 'block';
-    icon.textContent = String.fromCharCode(8722); // minus sign
+    if (icon) icon.textContent = String.fromCharCode(8722);
   } else {
     detail.style.display = 'none';
-    icon.textContent = '+';
+    if (icon) icon.textContent = '+';
   }
 }
-
 function scrollToPanel(id) {
   var panel = document.getElementById('panel-' + id);
   if (!panel) return;
-  // Expand it
   var detail = document.getElementById('detail-' + id);
   var icon = document.getElementById('icon-' + id);
   if (detail && detail.style.display === 'none') {
     detail.style.display = 'block';
     if (icon) icon.textContent = String.fromCharCode(8722);
   }
-  // Scroll
   panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  // Flash highlight
   panel.classList.add('highlight');
   setTimeout(function() { panel.classList.remove('highlight'); }, 1200);
 }
-
-// Expand all / collapse all
 function expandAll() {
-  document.querySelectorAll('.panel-detail').forEach(function(el) {
-    el.style.display = 'block';
-  });
-  document.querySelectorAll('.expand-icon').forEach(function(el) {
-    el.textContent = String.fromCharCode(8722);
-  });
+  document.querySelectorAll('.panel-detail').forEach(function(el){ el.style.display='block'; });
+  document.querySelectorAll('.expand-icon').forEach(function(el){ el.textContent=String.fromCharCode(8722); });
 }
 function collapseAll() {
-  document.querySelectorAll('.panel-detail').forEach(function(el) {
-    el.style.display = 'none';
-  });
-  document.querySelectorAll('.expand-icon').forEach(function(el) {
-    el.textContent = '+';
-  });
+  document.querySelectorAll('.panel-detail').forEach(function(el){ el.style.display='none'; });
+  document.querySelectorAll('.expand-icon').forEach(function(el){ el.textContent='+'; });
 }
 """
 
 
-def generate_html(claims, figures_yaml, scripts_yaml, numbers, colors,
-                  evidence_annots, datarefs):
-    """Generate the complete dashboard HTML."""
-    # Build figures-by-claim lookup
+def generate_html(claims, figures_yaml, numbers, fig_uris, all_clean):
+    """Assemble the complete self-contained dashboard HTML."""
     figures_by_claim = defaultdict(list)
     for fig in figures_yaml:
         for cid in fig.get("supports_claims", []):
             figures_by_claim[cid].append(fig)
 
-    # Build scripts-by-path lookup
-    scripts_by_path = {}
-    for s in scripts_yaml:
-        scripts_by_path[s.get("path", "")] = s
-
-    # Compute dependents (reverse of depends_on)
+    # Reverse dependency edges.
     for c in claims:
         c["_dependents"] = []
     claim_map = {c["id"]: c for c in claims}
@@ -973,21 +885,14 @@ def generate_html(claims, figures_yaml, scripts_yaml, numbers, colors,
             if dep in claim_map:
                 claim_map[dep]["_dependents"].append(c["id"])
 
-    dag_svg = generate_dag_svg(claims, colors)
-    summary = generate_summary_bar(claims, colors, figures_yaml, claims)
-    orphans = generate_unlinked_list(figures_yaml)
+    dag_svg = generate_dag_svg(claims)
+    banner = generate_provenance_banner(claims, figures_yaml, all_clean)
+    overview = generate_overview_figures(figures_yaml, fig_uris)
 
-    # Generate panels grouped by section
     section_order = [
-        "1", "intro",
-        "2", "data",
-        "3", "universal",
-        "4", "tension",
-        "5", "w0wa", "reinterpretation",
-        "6", "curvature",
-        "7", "extension",
-        "8", "conclusion",
-        "App", "appendix",
+        "1", "intro", "2", "data", "3", "universal", "4", "tension",
+        "5", "w0wa", "reinterpretation", "6", "curvature", "7", "extension",
+        "8", "conclusion", "App", "appendix",
     ]
 
     def section_sort_key(claim):
@@ -997,20 +902,15 @@ def generate_html(claims, figures_yaml, scripts_yaml, numbers, colors,
                 return i
         return 999
 
-    sorted_claims = sorted(claims, key=section_sort_key)
+    panels = "".join(
+        generate_detail_panel(c, figures_by_claim, numbers, fig_uris)
+        for c in sorted(claims, key=section_sort_key)
+    )
 
-    panels = []
-    for c in sorted_claims:
-        panel = generate_detail_panel(
-            c, figures_by_claim, scripts_by_path, numbers, colors,
-            evidence_annots, datarefs
-        )
-        panels.append(panel)
+    repo_link = GITHUB_BASE.rsplit("/blob/", 1)[0]
+    generated = date.today().isoformat()
 
-    from datetime import datetime
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M")
-
-    html = f"""<!DOCTYPE html>
+    return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1023,32 +923,42 @@ def generate_html(claims, figures_yaml, scripts_yaml, numbers, colors,
 <body>
 
 <h1>Claim Provenance Dashboard</h1>
-<p class="subtitle">DESI-w0wa paper -- generated {timestamp}</p>
+<p class="subtitle">Universal distance modes from DESI BAO and Type Ia supernovae</p>
 
-{summary}
+<div class="intro">
+  This page maps the paper's argument to its evidence. Each scientific claim is
+  shown with the figures, quoted numbers, and code that support it, and with the
+  other claims it depends on. It is meant to be navigated by readers and by AI
+  agents alike: every number traces to a key in <code>paper_numbers.json</code>,
+  and every figure and script links to its source in the
+  <a href="{repo_link}">public repository</a>.
+</div>
+
+{banner}
 
 <div class="dag-section">
-  <h2>Claim Dependency Graph</h2>
-  <p style="font-size:13px; color:#888; margin-top:-8px;">
-    Click any node to scroll to its detail panel.
-    Green = fully traced, Yellow = partial, Red = missing provenance.
+  <h2>Claim dependency graph</h2>
+  <p style="font-size:13px; color:#6b7280; margin-top:-8px;">
+    Arrows point from a claim to the claims that build on it. Click any node to jump to its detail panel.
   </p>
   {dag_svg}
 </div>
 
 <div style="display:flex; gap:8px; margin-bottom:12px;">
-  <button onclick="expandAll()" style="padding:6px 14px; border:1px solid #ccc; border-radius:4px; background:#fff; cursor:pointer; font-size:13px;">Expand All</button>
-  <button onclick="collapseAll()" style="padding:6px 14px; border:1px solid #ccc; border-radius:4px; background:#fff; cursor:pointer; font-size:13px;">Collapse All</button>
+  <button onclick="expandAll()" style="padding:6px 14px; border:1px solid #ccc; border-radius:4px; background:#fff; cursor:pointer; font-size:13px;">Expand all</button>
+  <button onclick="collapseAll()" style="padding:6px 14px; border:1px solid #ccc; border-radius:4px; background:#fff; cursor:pointer; font-size:13px;">Collapse all</button>
 </div>
 
-<h2>Claim Details</h2>
+<h2>Claims</h2>
 
-{"".join(panels)}
+{panels}
 
-{orphans}
+{overview}
 
 <div class="footer">
-  Generated by <code>scripts/build_dashboard.py</code> from YAML registries and paper data.
+  Generated {generated} from the claim, figure, and number registries
+  (<code>structure/*.yaml</code>) by <code>scripts/build_dashboard.py</code>.
+  Source: <a href="{repo_link}">{repo_link}</a>
 </div>
 
 <script>
@@ -1057,85 +967,43 @@ def generate_html(claims, figures_yaml, scripts_yaml, numbers, colors,
 
 </body>
 </html>"""
-    return html
 
 
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 
 def main():
-    print("Building claim provenance dashboard...")
-    print()
+    print("Building claim provenance dashboard...\n")
 
-    # Load data
     print("Loading registries...")
     claims = load_claims()
     figures = load_figures()
-    scripts = load_scripts()
     numbers = load_numbers()
-    print(f"  Claims: {len(claims)}")
-    print(f"  Figures: {len(figures)}")
-    print(f"  Scripts: {len(scripts)}")
-    print(f"  Number keys: {len(numbers)}")
-    print()
+    print(f"  Claims: {len(claims)}  Figures: {len(figures)}  Number keys: {len(numbers)}\n")
 
-    # Extract LaTeX annotations
-    print("Extracting LaTeX annotations...")
+    print("Extracting LaTeX claim annotations...")
     contexts = extract_claim_contexts()
-    evidence_annots = extract_evidence_annotations()
-    datarefs = extract_dataref_annotations()
-    print(f"  Claim annotations found: {len(contexts)}")
-    print(f"  Evidence annotations found: {len(evidence_annots)}")
-    print(f"  Dataref annotations found: {sum(len(v) for v in datarefs.values())}")
-    print()
-
-    # Enrich claims with context
     for claim in claims:
-        cid = claim["id"]
-        claim["_context"] = contexts.get(cid)
+        claim["_context"] = contexts.get(claim["id"])
+    print(f"  Found {len(contexts)} \\claim annotations\n")
 
-    # Convert figures
-    print("Converting figures to PNG...")
-    assets_dir = convert_figures_to_png(figures)
-    print()
+    print("Embedding figures (base64)...")
+    fig_uris, fig_stats = build_figure_data_uris(figures)
+    print(f"  {len(fig_uris)} figures embedded\n")
 
-    # Compute provenance colors
-    print("Checking provenance status...")
-    figures_by_claim = defaultdict(list)
-    for fig in figures:
-        for cid in fig.get("supports_claims", []):
-            figures_by_claim[cid].append(fig)
+    all_clean = run_build_audit(claims, figures, numbers, fig_stats)
 
-    colors = {}
-    for claim in claims:
-        clr = check_provenance(
-            claim, figures_by_claim, scripts, evidence_annots, datarefs
-        )
-        colors[claim["id"]] = clr
-        print(f"  {claim['id']}: {clr}")
-    print()
-
-    # Generate HTML
-    print("Generating HTML dashboard...")
-    html = generate_html(
-        claims, figures, scripts, numbers, colors, evidence_annots, datarefs
-    )
-    out_path = PROJECT_ROOT / "structure" / "claim_dashboard.html"
+    print("Generating HTML...")
+    html = generate_html(claims, figures, numbers, fig_uris, all_clean)
+    # Output location adapts to layout: working tree -> output/, flattened
+    # release (no output/ dir) -> structure/ alongside the registries.
+    if (PROJECT_ROOT / "output").is_dir():
+        out_path = PROJECT_ROOT / "output" / "claim_dashboard.html"
+    else:
+        out_path = PROJECT_ROOT / "structure" / "claim_dashboard.html"
     out_path.write_text(html)
     print(f"  Written to: {out_path}")
-    print(f"  Size: {len(html):,} bytes")
-    print()
-
-    # Summary
-    n_green = sum(1 for v in colors.values() if v == "green")
-    n_yellow = sum(1 for v in colors.values() if v == "yellow")
-    n_red = sum(1 for v in colors.values() if v == "red")
-    n_pngs = len(list(assets_dir.glob("*.png")))
-    print("Summary:")
-    print(f"  {len(claims)} claims: {n_green} green, {n_yellow} yellow, {n_red} red")
-    print(f"  {n_pngs} PNG figure assets in {assets_dir}")
-    print(f"  Dashboard: {out_path}")
-    print()
+    print(f"  Size: {len(html):,} bytes (self-contained, no external assets)\n")
     print("Done.")
 
 

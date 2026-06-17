@@ -12,7 +12,7 @@ claims:
       - id: ev_inner_products
         description: "Inner product matrix: minimum = 0.9969, mean = 0.9984 across all probe pairs."
         data_refs:
-          - calculation/scripts/cross_dataset_analysis.py
+          - calculation/scripts/compute_paper_numbers.py
     depends_on: []
     status: established
 
@@ -25,7 +25,7 @@ claims:
       - id: ev_beta_regression
         description: "Sequential fit: Omega_m h^2 alone R^2=0.95, +Omega_b h^2 R^2=0.974, +theta_star R^2=0.99998."
         data_refs:
-          - calculation/scripts/cross_dataset_analysis.py
+          - calculation/scripts/compute_paper_numbers.py
     depends_on: [c0_universal]
     status: established
 
@@ -38,8 +38,7 @@ claims:
       - id: ev_c0_table
         description: "Four-probe tension table: BAO positive, all SN mild/negative."
         data_refs:
-          - calculation/scripts/cross_dataset_analysis.py
-          - calculation/scripts/diagnose_union3.py
+          - calculation/scripts/compute_paper_numbers.py
     depends_on: [c0_universal]
     status: established
 
@@ -52,7 +51,7 @@ claims:
       - id: ev_sigma_c0
         description: "BAO sigma_c0 = 1.56 > 1; SN sigma_c0 = 0.28-0.33 < 1 (ACT chain, per-sample rdrag)."
         data_refs:
-          - calculation/scripts/cross_dataset_analysis.py
+          - calculation/scripts/compute_paper_numbers.py
     depends_on: [c0_universal]
     status: established
 
@@ -90,7 +89,8 @@ claims:
       - id: ev_data_projections
         description: "BAO a1 near zero vs a2, a3 significant; w0wa plane coloring shows chain enters through c2."
         data_refs:
-          - calculation/scripts/section5_figures.py
+          - calculation/scripts/precompute_figure_data.py
+          - code/figures/make_all_figures.py
     depends_on: [w0wa_is_c0]
     status: established
 

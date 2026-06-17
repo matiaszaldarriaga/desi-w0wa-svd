@@ -1,0 +1,92 @@
+% appendix_reproducibility.tex — Appendix B
+% Describes the companion GitHub repository and the reproducibility /
+% provenance / machine-readability ideas it explores. Cited from the
+% introduction; introduces no new scientific claims.
+
+\section{The companion repository: an experiment in machine-readable provenance}
+\label{app:reproducibility}
+
+The introduction notes that all code, data-loading scripts, and the analysis
+pipeline are public.\footnote{\url{https://github.com/matiaszaldarriaga/desi-w0wa-svd}}
+This appendix describes what the repository contains and, more importantly, the
+ideas it is meant to explore. The science in this paper is modest; the part I
+think is worth a reader's attention is the \emph{form} in which it is released.
+The repository is an experiment in using an AI coding agent not only to do the
+calculation but to package the resulting paper so that every number, figure, and
+claim is traceable to the code that produced it, and so that the whole argument
+is legible to \emph{other} agents as well as to people. I make no claim that the
+specific conventions below are the right ones; they are offered as a concrete
+example that readers --- and their agents --- can inspect, criticize, and improve.
+
+\subsection{What is in the repository}
+\label{app:repo_contents}
+
+Beyond the usual contents (the LaTeX source, the analysis package, and the
+scripts that turn the public DESI~DR2 BAO, supernova, and CMB MCMC chains into
+the distance-ratio decompositions used here), the repository is organized around
+three goals: exact reproducibility, end-to-end provenance of every quoted number,
+and a machine-readable map of the paper's claims and evidence. A top-level
+\texttt{README} documents the layout and the commands below.
+
+\subsection{Reproducibility}
+\label{app:reproducibility_pipeline}
+
+The pipeline is deliberately split so that the expensive, data-heavy step is
+separated from figure generation. One script loops over the MCMC chain samples
+once, computing the cosmological distances, whitened covariances, SVD
+decompositions, and grid evaluations, and caches every resulting array. A second
+script computes every number quoted in the paper from those arrays. A third --- a
+marimo notebook that also runs as plain Python --- reads only the cached arrays
+and regenerates every figure in seconds. Because the cached arrays and the number
+file are committed, a reader who only wants to rebuild the paper need not download
+the multi-gigabyte chains at all; the full pipeline from the public chains is a
+single orchestration script for anyone who wants to verify the cache itself. The
+intent is that the gap between ``download the inputs'' and ``reproduce every
+figure'' is a documented command, not an exercise left to the reader.
+
+\subsection{Provenance of every number}
+\label{app:number_provenance}
+
+Every number in the paper text carries a \texttt{\textbackslash dataref}
+annotation in the LaTeX source that names a key. That key resolves to an entry in
+a committed machine-readable file (\texttt{paper\_numbers.json}), and the same key
+appears in the script that computes it. A reader who wants to know where, say, the
+$+2.2\sigma$ BAO \czero tension comes from can follow the key from the printed
+sentence to the stored value to the exact line of code and the formula it
+evaluates. Nothing in the paper is a hand-typed number: the build regenerates the
+value file, so a stale or mistyped figure in the text is detectable rather than
+silent. This is the provenance idea I would most like readers to evaluate ---
+whether tying each printed number to a key, a stored value, and a line of code is
+worth the modest bookkeeping it costs.
+
+\subsection{Claims, evidence, and the dependency graph}
+\label{app:claims_structure}
+
+The repository carries a set of machine-readable registries, maintained alongside
+the LaTeX, that record the logical skeleton of the paper rather than its prose. A
+claim registry lists each scientific claim with a stable identifier, its statement,
+pointers to the figures, stored numbers, and code that constitute its evidence, and
+links to the other claims it depends on. Companion registries do the same for
+figures (each tied to the script and notebook cell that produces it and the claims
+it supports) and for the critical-path scripts. A separate argument-skeleton file
+records what each section establishes and what it rests on, and a dependency graph
+renders the claim-to-claim structure directly. The aim is that the paper's argument
+exists not only as text to be read linearly but as an explicit graph that can be
+queried: \emph{which claims depend on this result?}, \emph{what is the evidence for
+that one?}, \emph{which figure and which line of code support it?}
+
+\subsection{An interactive view, and an agent-facing one}
+\label{app:dashboard}
+
+The same registries drive an interactive HTML dashboard that renders the
+claim--evidence graph in a browser, so a reader can navigate from any claim down to
+the figures, numbers, and code that support it without reading the source files.
+The registries are equally meant to be consumed by software: the annotation macros
+and the YAML files were built so that an agent handed this repository can locate
+every claim, verify that each traces to code and data, and check the paper for
+internal consistency --- the same verification I relied on while writing it. The
+broader concept behind the repository is that as papers are increasingly read,
+checked, and built upon by AI agents, it is worth publishing the structure of an
+argument in a form those agents can ingest directly, rather than leaving them to
+reconstruct it from prose. The repository is offered as a worked example of that
+idea.

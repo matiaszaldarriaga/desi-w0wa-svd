@@ -34,10 +34,17 @@ python "$SCRIPT_DIR/compute_paper_numbers.py"
 echo ""
 
 # ── Step 3: Generate all figures ──
-echo "=== Step 3/3: Generate all figures ==="
+echo "=== Step 3/4: Generate all figures ==="
 echo "  (precomputed data -> paper/figures/*.pdf, < 5 sec)"
 echo ""
 python "$SCRIPT_DIR/make_all_figures.py"
+echo ""
+
+# ── Step 4: Rebuild the claim provenance dashboard ──
+echo "=== Step 4/4: Rebuild claim dashboard ==="
+echo "  (registries + figures -> structure/claim_dashboard.html, self-contained)"
+echo ""
+python "$SCRIPT_DIR/build_dashboard.py"
 echo ""
 
 # ── Verification ──

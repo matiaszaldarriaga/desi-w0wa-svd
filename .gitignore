@@ -24,8 +24,10 @@ paper/sections/*.aux
 # Generated figures (reproduced by pipeline)
 paper/figures/*.pdf
 
-# Dashboard assets (regenerated)
+# Dashboard build by-products (the dashboard itself is self-contained and IS committed;
+# these are author-only / legacy scratch and are never shipped)
 structure/dashboard_assets/
+dashboard_audit.md
 
 # OS noise
 .DS_Store
